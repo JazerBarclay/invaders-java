@@ -4,8 +4,8 @@ public class Entity extends GameObject {
 
 	private int health;
 	
-	public Entity(int x, int y, int width, int height, int health) {
-		super(x, y, width, height);
+	public Entity(int x, int y, int width, int height, double baseSpeed, int health) {
+		super(x, y, width, height, baseSpeed);
 		this.health = health;
 	}
 	
