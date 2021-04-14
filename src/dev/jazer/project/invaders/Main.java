@@ -1,8 +1,6 @@
 package dev.jazer.project.invaders;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -12,11 +10,15 @@ public class Main extends Application {
 	}
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
-		BorderPane root = new BorderPane();
-		Scene scene = new Scene(root,800,400);
-		primaryStage.setScene(scene);
-		primaryStage.show();
+	public void start(Stage window) throws Exception {
+		
+		GameModel model = new GameModel(1200, 900);
+		GameView view = new GameView(window, model);
+		GameController controller = new GameController(model);
+
+		view.setController(controller);
+		model.run();
+		view.show();
 	}
 
 }
