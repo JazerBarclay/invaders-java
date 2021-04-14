@@ -4,7 +4,7 @@ public class GameObject {
 
 	private Vector position, motion;
 	private int width, height;
-	
+	private boolean visible;
 	
 	/* CONSTRUCTORS */
 	
@@ -12,6 +12,7 @@ public class GameObject {
 		this.position = new Vector(x, y);
 		this.width = width;
 		this.height = height;
+		this.visible = true;
 	}
 	
 	
@@ -65,7 +66,15 @@ public class GameObject {
 		this.height = height;
 	}
 	
+	public boolean isVisible() {
+		return visible;
+	}
 
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+	
+	
 	/* CALCULATIONS */
 	
 	public Vector nextPosition() {
