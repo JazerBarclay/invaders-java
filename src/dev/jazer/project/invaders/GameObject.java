@@ -73,6 +73,11 @@ public class GameObject {
 		return position;
 	}
 	
+	/**
+	 * Checks if the object parsed will collide with this object once it has moved
+	 * @param obj - The other object
+	 * @return true if they collide otherwise false
+	 */
 	public boolean isColliding(GameObject obj) {
 		// Flags
 		boolean willIntersectX = false,
