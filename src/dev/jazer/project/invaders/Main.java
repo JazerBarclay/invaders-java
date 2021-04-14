@@ -17,8 +17,10 @@ public class Main extends Application {
 		GameController controller = new GameController(model);
 
 		view.setController(controller);
-		model.run();
 		view.show();
+		
+		model.startGame(view, controller);
+		
 	}
 
 }

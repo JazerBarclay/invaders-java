@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 
 public class GameView {
 
+	private GameModel model;
+	
 	private Stage window;
 	private Canvas gameCanvas;
 	private Pane layout;
@@ -16,6 +18,7 @@ public class GameView {
 	
 	public GameView(Stage window, GameModel model) {
 		this.window = window;
+		this.model = model;
 		this.gameCanvas = new Canvas(model.getGameWidth(), model.getGameHeight());
 		
 		initDisplay();
@@ -51,7 +54,19 @@ public class GameView {
 	 * @param controller - The controller
 	 */
 	public void setController(GameController controller) {
-		
+		screen.setOnKeyPressed(controller.keyPressedHandler());
+		screen.setOnKeyReleased(controller.keyReleasedHandler());
+	}
+	
+	/**
+	 * Draws the model objects to the screen based on the game state
+	 */
+	public void render() {
+		clearGameCanvas();
+		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
+		gc.setFill(Color.WHITE);
+		Player p = model.getPlayer();
+		gc.fillRect(p.getX(), p.getY(), p.getWidth(), p.getHeight());
 	}
 	
 }
