@@ -4,15 +4,17 @@ public class GameObject {
 
 	private Vector position, motion;
 	private int width, height;
+	private double baseSpeed;
 	private boolean visible;
 	
 	/* CONSTRUCTORS */
 	
-	public GameObject(int x, int y, int width, int height) {
+	public GameObject(int x, int y, int width, int height, double baseSpeed) {
 		this.position = new Vector(x, y);
 		this.width = width;
 		this.height = height;
 		this.visible = true;
+		this.baseSpeed = baseSpeed;
 	}
 	
 	
@@ -50,6 +52,14 @@ public class GameObject {
 		this.motion = motion;
 	}
 	
+	public double getBaseSpeed() {
+		return baseSpeed;
+	}
+	
+	public void setBaseSpeed(double speed) {
+		this.baseSpeed = speed;
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -80,6 +90,11 @@ public class GameObject {
 	public Vector nextPosition() {
 		position.add(motion);
 		return position;
+	}
+	
+	public Vector updatePosition() {
+		this.setPosition(position.add(motion));
+		return getPosition();
 	}
 	
 	/**
