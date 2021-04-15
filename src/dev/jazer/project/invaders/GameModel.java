@@ -67,6 +67,10 @@ public class GameModel {
 		setState(GameState.RUNNING);
 	}
 	
+	public int getPlayerCooldown() {
+		return playerCooldown;
+	}
+	
 	public Player getPlayer() {
 		return player;
 	}
@@ -96,9 +100,9 @@ public class GameModel {
 		for (int i = 0; i < enemies.length; i++) {
 			for (int j = 0; j < enemies[0].length; j++) {
 				Enemy e = null;
-				if (i <= 1) e = new Enemy(EnemyType.BUNNY);
-				if (i > 1 && i <= 3) e = new Enemy(EnemyType.LOADER);
-				if (i == 4) e = new Enemy(EnemyType.SQUID);
+				if (i <= 1) e = new Enemy(EnemyType.BUNNY, 30);
+				if (i > 1 && i <= 3) e = new Enemy(EnemyType.LOADER, 20);
+				if (i == 4) e = new Enemy(EnemyType.SQUID, 10);
 				e.setPosition(new Vector(e.getWidth()*j+j*30, e.getHeight()*i+i*20+10));
 				e.setBaseSpeed(0);
 				e.setMotion(new Vector(e.getBaseSpeed(),0));
@@ -107,8 +111,11 @@ public class GameModel {
 		}
 	}
 	
+	public void playerFire() {
+		generateBullet(player);
+	}
+	
 	private void generateBullet(Entity e) {
-		System.out.println("Pew Pew");
 		if (e instanceof Player) {
 			playerCooldown = PLAYER_CD_DURATION;
 			bullets.add(
@@ -125,6 +132,41 @@ public class GameModel {
 							new Vector(0, 5), 
 							6, 20, 1));
 		}
+	}
+	
+	private void detectBulletCollision() {
+		
+		// Return immediately if no bullets available
+		if (bullets.size() <= 0) return;
+		// Create a list of bullets to delete as we cant remove while iterating through them
+		ArrayList<GameObject> delBullet = new ArrayList<GameObject>();
+		
+		// Loop through all enemies
+		for (Enemy[] enemies : this.enemies) {
+			for (Enemy e : enemies) {
+				// If the enemy is already dead, skip
+				if (!e.isAlive()) continue;
+				// For each bullet, check if colliding with the enemy
+				for (GameObject bullet : bullets) {
+					
+					// If not colliding, skip the rest of the code
+					if (!bullet.isColliding(e)) continue;
+					
+					// If it is colliding, mark the bullet for deletion
+					delBullet.add(bullet);
+					// set the enemy health to 0
+					e.setHealth(0);
+					// increase the speed of the game by reducing the rate
+					rate -= 4;
+					// add the enemy value to the score
+					score += e.getValue();
+					
+				}
+			}
+		} // end of all loops
+		
+		for (GameObject o : delBullet) bullets.remove(o);
+		
 	}
 	
 	/**
@@ -154,8 +196,8 @@ public class GameModel {
 	}
 	
 	public void update() {
+		detectBulletCollision();
 		if (tick == 0 || tick == rate/2) {
-			generateBullet(player);
 			for (Enemy[] enemies : this.enemies) {
 				for (Enemy e : enemies) {
 					e.updatePosition();

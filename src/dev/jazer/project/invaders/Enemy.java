@@ -4,13 +4,13 @@ public class Enemy extends Entity {
 
 	private EnemyType type;
 	
-	public Enemy(EnemyType type) {
-		this(0,0);
+	public Enemy(EnemyType type, int value) {
+		this(0,0, value);
 		this.type = type;
 	}
 	
-	public Enemy(int x, int y) {
-		super(x, y, 60, 50, 5, 1);
+	public Enemy(int x, int y, int value) {
+		super(x, y, 60, 50, 5, 1, value);
 	}
 	
 	public void setType(EnemyType type) {

@@ -97,6 +97,9 @@ public class GameController {
 		if (leftPressed && !rightPressed) model.getPlayer().setMotion(new Vector(-model.getPlayer().getBaseSpeed(), 0));
 		if (!leftPressed && rightPressed) model.getPlayer().setMotion(new Vector(model.getPlayer().getBaseSpeed(), 0));
 		if (!leftPressed && !rightPressed) model.getPlayer().setMotion(new Vector(0, 0));
+		if (spacePressed && model.getPlayerCooldown() <= 0) {
+			model.playerFire();
+		}
 	}
 	
 }

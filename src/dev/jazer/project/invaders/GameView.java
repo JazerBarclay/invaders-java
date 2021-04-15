@@ -73,7 +73,7 @@ public class GameView {
 		// Draw enemies
 		for (Enemy[] enemies : model.getEnemies()) {
 			for (Enemy e : enemies) {
-				gc.fillRect(e.getX(), e.getY(), e.getWidth(), e.getHeight());
+				if (e.isAlive()) gc.fillRect(e.getX(), e.getY(), e.getWidth(), e.getHeight());
 			}
 		}
 		
