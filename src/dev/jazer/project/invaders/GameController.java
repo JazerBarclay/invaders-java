@@ -31,6 +31,7 @@ public class GameController {
 					rightPressed = true;
 					break;
 				case SPACE:
+				case UP:
 					spacePressed = true;
 //					model.playerFire();
 					break;
@@ -63,6 +64,7 @@ public class GameController {
 					rightPressed = false;
 					break;
 				case SPACE:
+				case UP:
 					spacePressed = false;
 					break;
 				default:
