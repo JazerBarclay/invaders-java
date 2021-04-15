@@ -64,9 +64,23 @@ public class GameView {
 	public void render() {
 		clearGameCanvas();
 		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
+		
+		// Draw player
 		gc.setFill(Color.WHITE);
 		Player p = model.getPlayer();
 		gc.fillRect(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+		
+		// Draw enemies
+		for (Enemy[] enemies : model.getEnemies()) {
+			for (Enemy e : enemies) {
+				gc.fillRect(e.getX(), e.getY(), e.getWidth(), e.getHeight());
+			}
+		}
+		
+		for (GameObject o : model.getBullets()) {
+			gc.fillRect(o.getX(), o.getY(), o.getWidth(), o.getHeight());
+		}
+		
 	}
 	
 }

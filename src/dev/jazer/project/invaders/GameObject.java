@@ -8,15 +8,19 @@ public class GameObject {
 	private boolean visible;
 	
 	/* CONSTRUCTORS */
-	
-	public GameObject(int x, int y, int width, int height, double baseSpeed) {
-		this.position = new Vector(x, y);
+
+	public GameObject(Vector position, Vector motion, int width, int height, double baseSpeed) {
+		this.position = position;
+		this.motion = motion;
 		this.width = width;
 		this.height = height;
-		this.visible = true;
 		this.baseSpeed = baseSpeed;
+		this.visible = true;
 	}
 	
+	public GameObject(int x, int y, int width, int height, double baseSpeed) {
+		this(new Vector(x, y), new Vector(), width, height, baseSpeed);
+	}
 	
 	/* GETTERS AND SETTERS */
 	
