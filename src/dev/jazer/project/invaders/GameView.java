@@ -30,6 +30,9 @@ public class GameView {
 		initDisplay();
 	}
 	
+	/**
+	 * Init display with pane, scene, canvas and labels
+	 */
 	private void initDisplay() {
 		layout = new Pane();
 		screen = new Scene(layout, 1200, 900);
@@ -81,6 +84,17 @@ public class GameView {
 		screen.setOnKeyReleased(controller.keyReleasedHandler());
 	}
 	
+	private void drawBox(GraphicsContext gc, GameObject obj) {
+		gc.setFill(Color.LIGHTGRAY);
+		gc.fillRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight());
+	}
+	
+	private void drawPlayer(GraphicsContext gc, Player p) {
+		gc.setFill( Color.WHITE );
+		gc.fillRect( p.getX()+((p.getWidth()/5)*2), p.getY(), p.getWidth()/5, p.getHeight()/2 );
+		gc.fillRect( p.getX(), p.getY()+p.getHeight()/2, p.getWidth(), p.getHeight()/2 );	
+	}
+	
 	/**
 	 * Draws the model objects to the screen based on the game state
 	 */
@@ -89,14 +103,12 @@ public class GameView {
 		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
 		
 		// Draw player
-		gc.setFill(Color.WHITE);
-		Player p = model.getPlayer();
-		gc.fillRect(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+		drawPlayer(gc, model.getPlayer());
 		
 		// Draw enemies
 		for (Enemy[] enemies : model.getEnemies()) {
 			for (Enemy e : enemies) {
-				if (e.isAlive()) gc.fillRect(e.getX(), e.getY(), e.getWidth(), e.getHeight());
+				if (e.isAlive()) drawBox(gc, e);
 			}
 		}
 		
