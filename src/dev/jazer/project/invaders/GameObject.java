@@ -37,6 +37,7 @@ public class GameObject {
 	}
 	
 	public void setPosition(Vector position) {
+		if (position.getX() < 0) position.setX(0);
 		this.position = position;
 	}
 	
@@ -97,7 +98,7 @@ public class GameObject {
 	}
 	
 	public Vector updatePosition() {
-		this.setPosition(position.add(motion));
+		this.setPosition(position.add(motion)); 
 		return getPosition();
 	}
 	

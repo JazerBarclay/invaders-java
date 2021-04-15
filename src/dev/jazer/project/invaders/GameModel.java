@@ -148,6 +148,15 @@ public class GameModel {
 		return bullets.toArray(new GameObject[bullets.size()]);
 	}
 
+	public int getTick() {
+		return tick;
+	}
+
+
+	public int getRate() {
+		return rate;
+	}
+	
 	/**
 	 * Advances the current game tick and updates cooldowns
 	 */

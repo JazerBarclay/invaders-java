@@ -89,10 +89,83 @@ public class GameView {
 		gc.fillRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight());
 	}
 	
+	private void drawGrid(Canvas canvas, Vector startPosition, String[][] grid, Color fillColour, int blockSize) {
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		double x = startPosition.getX();
+		double y = startPosition.getY();
+		gc.setFill(fillColour);
+		
+		for(int i = 0; i < grid.length; i++) {
+			for(int j = 0; j < grid[0].length; j++) {
+				if (grid[i][j].equals("x")) gc.fillRect(x+(j*blockSize), y+(i*blockSize), blockSize, blockSize);
+			}
+		}
+	}
+	
+	private void drawBullet(GameObject bullet) {
+		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
+		gc.setFill( Color.WHITE );
+		gc.fillRect( bullet.getX(), bullet.getY(), bullet.getWidth(), bullet.getHeight() );
+	}
+	
 	private void drawPlayer(GraphicsContext gc, Player p) {
 		gc.setFill( Color.WHITE );
 		gc.fillRect( p.getX()+((p.getWidth()/5)*2), p.getY(), p.getWidth()/5, p.getHeight()/2 );
 		gc.fillRect( p.getX(), p.getY()+p.getHeight()/2, p.getWidth(), p.getHeight()/2 );	
+	}
+	
+	private void drawSquid(GraphicsContext gc, Enemy e) {
+		String[][] grid = new String[][] {
+			{" "," ","x","x"," "," "},
+			{" ","x","x","x","x"," "},
+			{"x","x","x","x","x","x"},
+			{"x","x","x","x","x","x"},
+			{" ","x"," ","x"," ","x"},
+		};
+		if (model.getTick() > model.getRate()/2) grid = new String[][] {
+			{" "," ","x","x"," "," "},
+			{" ","x","x","x","x"," "},
+			{"x","x","x","x","x","x"},
+			{"x","x","x","x","x","x"},
+			{"x"," ","x"," ","x"," "},
+		};
+		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+	}
+	
+	private void drawLoader(GraphicsContext gc, Enemy e) {
+		String[][] grid = new String[][] {
+			{"x","x"," "," "," "," "},
+			{"x"," "," "," ","x","x"},
+			{"x"," "," "," "," ","x"},
+			{"x","x","x","x","x","x"},
+			{"x","x","x","x","x","x"},
+		};
+		if (model.getTick() > model.getRate()/2) grid = new String[][] {
+			{" "," "," "," ","x","x"},
+			{"x","x"," "," "," ","x"},
+			{"x"," "," "," "," ","x"},
+			{"x","x","x","x","x","x"},
+			{"x","x","x","x","x","x"},
+		};
+		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+	}
+	
+	private void drawBunny(GraphicsContext gc, Enemy e) {
+		String[][] grid = new String[][] {
+			{" ","x","x"," ","x","x"},
+			{" ","x"," "," ","x"," "},
+			{"x","x","x","x","x"," "},
+			{" ","x","x","x","x","x"},
+			{" ","x"," "," ","x"," "},
+		};
+		if (model.getTick() > model.getRate()/2) grid = new String[][] {
+			{"x","x"," ","x","x"," "},
+			{" ","x"," "," ","x"," "},
+			{" ","x","x","x","x","x"},
+			{"x","x","x","x","x"," "},
+			{" ","x"," "," ","x"," "},
+		};
+		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
 	}
 	
 	/**
@@ -108,12 +181,25 @@ public class GameView {
 		// Draw enemies
 		for (Enemy[] enemies : model.getEnemies()) {
 			for (Enemy e : enemies) {
-				if (e.isAlive()) drawBox(gc, e);
+				if (!e.isAlive()) continue;
+				switch (e.getType()) {
+					case SQUID:
+						drawSquid(gc, e);
+						break;
+					case LOADER:
+						drawLoader(gc, e);
+						break;
+					case BUNNY:
+						drawBunny(gc, e);
+						break;
+					default:
+						drawBox(gc, e);
+				}
 			}
 		}
 		
 		for (GameObject o : model.getBullets()) {
-			gc.fillRect(o.getX(), o.getY(), o.getWidth(), o.getHeight());
+			drawBullet(o);
 		}
 
 		gc = gameCanvas.getGraphicsContext2D();
