@@ -67,9 +67,18 @@ public class GameModel {
 		setState(GameState.RUNNING);
 	}
 	
+	public int getScore() {
+		return score;
+	}
+	
+	public int getLives() {
+		return lives;
+	}
+	
 	public int getPlayerCooldown() {
 		return playerCooldown;
 	}
+	
 	
 	public Player getPlayer() {
 		return player;
@@ -91,7 +100,7 @@ public class GameModel {
 	}
 	
 	private void generatePlayer() {
-		this.player = new Player(0,gameHeight-new Player(0,0).getHeight());
+		this.player = new Player(0,gameHeight-new Player(0,0).getHeight()-70);
 	}
 	
 	private void generateEnemies() {
