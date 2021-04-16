@@ -14,7 +14,7 @@ public class GameController {
 	}
 
 	/**
-	 *  Handles keyboard events from the GameView initWindow() method
+	 * Handles keyboard events from the GameView initWindow() method
 	 * @return the handler for key press
 	 */
 	public EventHandler<KeyEvent> keyPressedHandler() {
@@ -50,7 +50,7 @@ public class GameController {
 	}
 
 	/**
-	 *  Handles keyboard events from the GameView initWindow() method
+	 * Handles keyboard events from the GameView initWindow() method
 	 * @return the handler for key release
 	 */
 	public EventHandler<KeyEvent> keyReleasedHandler() {
@@ -78,21 +78,21 @@ public class GameController {
 	}
 	
 	/**
-	 * @return if the left button is currently pressed
+	 * @return true if the left button is currently pressed
 	 */
 	public boolean isLeftPressed() {
 		return leftPressed;
 	}
 
 	/**
-	 * @return if the right button is currently pressed
+	 * @return true if the right button is currently pressed
 	 */
 	public boolean isRightPressed() {
 		return rightPressed;
 	}
 
 	/**
-	 * @return if the space button is currently pressed
+	 * @return true if the space button is currently pressed
 	 */
 	public boolean isSpacePressed() {
 		return spacePressed;

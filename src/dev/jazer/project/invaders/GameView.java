@@ -27,13 +27,6 @@ public class GameView {
 		this.model = model;
 		this.gameCanvas = new Canvas(model.getGameWidth(), model.getGameHeight());
 		
-		initDisplay();
-	}
-	
-	/**
-	 * Init display with pane, scene, canvas and labels
-	 */
-	private void initDisplay() {
 		layout = new Pane();
 		screen = new Scene(layout, 1200, 900);
 		layout.getChildren().add(gameCanvas);
@@ -77,8 +70,8 @@ public class GameView {
 	}
 
 	/**
-	 * Set the controller and assign input event handlers
-	 * @param controller - The controller
+	 * Set the controller that contains the input event handlers
+	 * @param controller
 	 */
 	public void setController(GameController controller) {
 		screen.setOnKeyPressed(controller.keyPressedHandler());
@@ -249,8 +242,8 @@ public class GameView {
 
 		paintDash(gc);
 		
-		lives.setText(model.getLives()+"");
-		score.setText(model.getScore()+"");
+		lives.setText("Lives: " + model.getLives());
+		score.setText("Score: " + model.getScore());
 		
 	}
 	

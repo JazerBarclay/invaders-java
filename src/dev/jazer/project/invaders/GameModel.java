@@ -32,13 +32,11 @@ public class GameModel {
 
 
 	public GameModel(int screenWidth, int screenHeight) {
-		// Assign class variable values using parsed values
 		this.gameWidth = screenWidth;
 		this.gameHeight = screenHeight;
 		this.state = GameState.RUNNING;
 		this.devmode = false;
 
-		// Init game stats
 		lives = 3;
 		score = 0;
 		tick = 0;
@@ -46,16 +44,9 @@ public class GameModel {
 		playerCooldown = 0;
 		enemyCooldown = 0;
 
-		// Initialise player
 		generatePlayer();
-
-		// Initialise enemies
 		generateEnemies();
-
-		// Initialise enemy bounds
 		generateEnemyBounds();
-
-		// Initialise bullets array
 		this.bullets = new ArrayList<GameObject>();
 
 	}
@@ -109,14 +100,26 @@ public class GameModel {
 		setState(GameState.STOPPED);
 	}
 
+	/**
+	 * 
+	 * @return true if is in devmode
+	 */
 	public boolean isDevmode() {
 		return devmode;
 	}
 	
+	/**
+	 * Set if game is in dev mode
+	 * @param devmode true/false
+	 */
 	public void setDevmode(boolean devmode) {
 		this.devmode = devmode;
 	}
 	
+	/**
+	 * Toggles devmode on or off
+	 * @return true if in devmode
+	 */
 	public boolean toggleDevmode() {
 		devmode ^= true;
 		return devmode;
@@ -152,30 +155,36 @@ public class GameModel {
 	}
 
 	/**
-	 * 
 	 * @return the 2d array of enemies
 	 */
 	public Enemy[][] getEnemies() {
 		return enemies;
 	}
 	
+	/**
+	 * @return the enemy bounding box game object
+	 */
 	public GameObject getEnemyBounds() {
 		return enemyBounds;
 	}
 
 	/**
-	 * 
 	 * @return the array of bullets
 	 */
 	public GameObject[] getBullets() {
 		return bullets.toArray(new GameObject[bullets.size()]);
 	}
 
+	/**
+	 * @return the current game tick
+	 */
 	public int getTick() {
 		return tick;
 	}
 
-
+	/**
+	 * @return the max rate which the tick resets at
+	 */
 	public int getRate() {
 		return rate;
 	}
@@ -218,6 +227,9 @@ public class GameModel {
 		}
 	}
 	
+	/**
+	 * Creates the enemy bounding box based on the enemies 2d array length and enemy size
+	 */
 	private void generateEnemyBounds() {
 		lBound = 0; rBound = 9;
 		
@@ -292,15 +304,18 @@ public class GameModel {
 
 					// If it is colliding, mark the bullet for deletion
 					delBullet.add(bullet);
+					
 					// set the enemy health to 0
 					e.setHealth(0);
+					
 					// increase the speed of the game by reducing the rate
 					rate -= 4;
+					
 					// add the enemy value to the score
 					score += e.getValue();
+					
 					// Check bounds on enemies
 					checkBounds();
-
 				}
 			}
 		}
@@ -310,12 +325,18 @@ public class GameModel {
 
 	}
 	
+	/**
+	 * Updates the player position checking to ensure it is within the game screen 
+	 */
 	private void updatePlayerPosition() {
 		if (player.getX()+player.getMotion().getX() < 0) player.getMotion().setX(player.getMotion().getX() - player.getX());
 		else if (player.getX()+player.getWidth()+player.getMotion().getX() > gameWidth) player.getMotion().setX(gameWidth-player.getX()+player.getWidth());
 		else player.updatePosition();
 	}
 
+	/**
+	 * Advances the enemy position, inverts its movements and dropping down when an edge is met
+	 */
 	private void updateEnemyPosition() {
 		if (getTick() == 0 || tick == rate/2) {
 			boolean invert = false;
@@ -340,6 +361,9 @@ public class GameModel {
 		}
 	}
 	
+	/**
+	 * Reduces the size of the bounding box to fit the enemies left alive
+	 */
 	private void checkBounds() {
 		boolean anyAliveLeft = false, anyAliveRight = false;
 		
