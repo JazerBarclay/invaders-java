@@ -1,7 +1,7 @@
 package dev.jazer.project.invaders;
 
 import java.util.ArrayList;
-
+import java.util.Random;
 import javafx.application.Platform;
 
 /**
@@ -250,11 +250,31 @@ public class GameModel {
 	}
 
 	/**
-	 * Creates a bullet fired by the given enemy
-	 * @param enemy
+	 * Fires a bullet by a random enemy when the enemy cooldown has reached 0
 	 */
-	public void enemyFire(Enemy enemy) {
-		generateBullet(enemy);
+	public void enemyFire() {
+		if (enemyCooldown != 0) return;
+		
+		enemyCooldown = ENEMY_CD_DURATION;
+		
+		Random rand = new Random();
+		int y = enemies.length-1;
+		int x = rand.nextInt(enemies[0].length-1);
+		boolean hasFired = false;
+		while (!hasFired) {
+			if (enemies[y][x].isAlive()) {
+				generateBullet(enemies[y][x]);
+				hasFired = true;
+			} else {
+				y--;
+				if (y < 0) {
+					y = enemies.length-1;
+					x++;
+				}
+				if (x > 9) x = 0;
+				
+			}
+		}
 	}
 
 	/**
@@ -285,10 +305,7 @@ public class GameModel {
 	 * bullet and increasing the game rate
 	 */
 	private void detectBulletCollision() {
-
-		// Return immediately if no bullets available
 		if (bullets.size() <= 0) return;
-		// Create a list of bullets to delete as we cant remove while iterating through them
 		ArrayList<GameObject> delBullet = new ArrayList<GameObject>();
 
 		// Loop through all enemies
@@ -298,31 +315,32 @@ public class GameModel {
 				if (!e.isAlive()) continue;
 				// For each bullet, check if colliding with the enemy
 				for (GameObject bullet : bullets) {
-
-					// If not colliding, skip the rest of the code
 					if (!bullet.isColliding(e)) continue;
-
-					// If it is colliding, mark the bullet for deletion
 					delBullet.add(bullet);
-					
-					// set the enemy health to 0
 					e.setHealth(0);
-					
-					// increase the speed of the game by reducing the rate
 					rate -= 4;
-					
-					// add the enemy value to the score
 					score += e.getValue();
-					
-					// Check bounds on enemies
 					checkBounds();
 				}
 			}
 		}
+		
+		for (GameObject bullet : bullets) {
+			if (bullet.isColliding(player)) {
+				lives--;
+				score+=player.getValue();
+				generatePlayer();
+				if (lives == 0) state = GameState.STOPPED;
+				delBullet.add(bullet);
+			}
+			if (bullet.getX() < 0 || 
+				bullet.getX() > getGameWidth() || 
+				bullet.getY() < 0 || 
+				bullet.getY() > getGameHeight()
+			) delBullet.add(bullet);
+		}
 
-		// Remove bullets listed as collided
 		for (GameObject o : delBullet) bullets.remove(o);
-
 	}
 	
 	/**
@@ -442,9 +460,11 @@ public class GameModel {
 		detectBulletCollision();
 		updatePlayerPosition();
 		updateEnemyPosition();
-		for (GameObject o : getBullets()) {
-			o.updatePosition();
-		}
+		
+		enemyFire();
+		
+		for (GameObject o : getBullets()) o.updatePosition();
+		
 		tick();
 	}
 
