@@ -51,6 +51,7 @@ public class GameView {
 
 		// Create the lives label which is displayed in the bottom left
 		lives = new Label(""+model.getLives());
+		lives.setTranslateX(20);
 		lives.setTranslateY(model.getGameHeight()-60);
 		lives.setFont(new Font("Arial", 48));
 		lives.setTextFill(Color.LIGHTGREY);
@@ -115,6 +116,7 @@ public class GameView {
 	}
 	
 	private void drawSquid(GraphicsContext gc, Enemy e) {
+		int offset = 0;
 		String[][] grid = new String[][] {
 			{" "," ","x","x"," "," "},
 			{" ","x","x","x","x"," "},
@@ -122,17 +124,24 @@ public class GameView {
 			{"x","x","x","x","x","x"},
 			{" ","x"," ","x"," ","x"},
 		};
-		if (model.getTick() > model.getRate()/2) grid = new String[][] {
-			{" "," ","x","x"," "," "},
-			{" ","x","x","x","x"," "},
-			{"x","x","x","x","x","x"},
-			{"x","x","x","x","x","x"},
-			{"x"," ","x"," ","x"," "},
-		};
+		if (model.getTick() > model.getRate()/2) {
+			grid = new String[][] {
+				{" "," ","x","x"," "," "},
+				{" ","x","x","x","x"," "},
+				{"x","x","x","x","x","x"},
+				{"x","x","x","x","x","x"},
+				{"x"," ","x"," ","x"," "},
+			};
+			offset = 5;
+		}
 		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+		gc.setFill( Color.BLACK );
+		gc.fillRect(e.getX()+15+offset, e.getY()+20, 5, 5);
+		gc.fillRect(e.getX()+35+offset, e.getY()+20, 5, 5);
 	}
 	
 	private void drawLoader(GraphicsContext gc, Enemy e) {
+		int offset = 0;
 		String[][] grid = new String[][] {
 			{"x","x"," "," "," "," "},
 			{"x"," "," "," ","x","x"},
@@ -140,17 +149,24 @@ public class GameView {
 			{"x","x","x","x","x","x"},
 			{"x","x","x","x","x","x"},
 		};
-		if (model.getTick() > model.getRate()/2) grid = new String[][] {
-			{" "," "," "," ","x","x"},
-			{"x","x"," "," "," ","x"},
-			{"x"," "," "," "," ","x"},
-			{"x","x","x","x","x","x"},
-			{"x","x","x","x","x","x"},
-		};
+		if (model.getTick() > model.getRate()/2) {
+			grid = new String[][] {
+				{" "," "," "," ","x","x"},
+				{"x","x"," "," "," ","x"},
+				{"x"," "," "," "," ","x"},
+				{"x","x","x","x","x","x"},
+				{"x","x","x","x","x","x"},
+			};
+			offset = -5;
+		}
 		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+		gc.setFill( Color.BLACK );
+		gc.fillRect(e.getX()+20+offset, e.getY()+35, 5, 5);
+		gc.fillRect(e.getX()+40+offset, e.getY()+35, 5, 5);
 	}
 	
 	private void drawBunny(GraphicsContext gc, Enemy e) {
+		int offset = 0;
 		String[][] grid = new String[][] {
 			{" ","x","x"," ","x","x"},
 			{" ","x"," "," ","x"," "},
@@ -158,14 +174,40 @@ public class GameView {
 			{" ","x","x","x","x","x"},
 			{" ","x"," "," ","x"," "},
 		};
-		if (model.getTick() > model.getRate()/2) grid = new String[][] {
-			{"x","x"," ","x","x"," "},
-			{" ","x"," "," ","x"," "},
-			{" ","x","x","x","x","x"},
-			{"x","x","x","x","x"," "},
-			{" ","x"," "," ","x"," "},
-		};
+		if (model.getTick() > model.getRate()/2) {
+			grid = new String[][] {
+				{"x","x"," ","x","x"," "},
+				{" ","x"," "," ","x"," "},
+				{" ","x","x","x","x","x"},
+				{"x","x","x","x","x"," "},
+				{" ","x"," "," ","x"," "},
+			};
+			offset = -5;
+		}
 		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+		gc.setFill( Color.BLACK );
+		gc.fillRect(e.getX()+20+offset, e.getY()+25, 5, 5);
+		gc.fillRect(e.getX()+40+offset, e.getY()+25, 5, 5);
+	}
+	
+	/**
+	 * Draws the bounds object to the game canvas
+	 * @param bounds - The bounds object
+	 */
+	private void paintBounds(GameObject bounds) {
+		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
+		gc.setFill( Color.RED );
+		gc.fillRect(bounds.getX(), bounds.getY(), bounds.getWidth(), 1);
+		gc.fillRect(bounds.getX(), bounds.getY()+bounds.getHeight(), bounds.getWidth(), 1);
+		gc.fillRect(bounds.getX(), bounds.getY(), 1, bounds.getHeight());
+		gc.fillRect(bounds.getX()+bounds.getWidth(), bounds.getY(), 1, bounds.getHeight());
+	}
+	
+	private void paintDash(GraphicsContext gc) {
+		gc.setFill( Color.BLACK );
+		gc.fillRect(0, model.getGameHeight()-65, model.getGameWidth(), 65);
+		gc.setFill( Color.GREY );
+		gc.fillRect(0, model.getGameHeight()-65, model.getGameWidth(), 1);
 	}
 	
 	/**
@@ -198,15 +240,14 @@ public class GameView {
 			}
 		}
 		
+		// If developer mode is set to true, draw the enemy bounds
+		if (model.isDevmode()) paintBounds(model.getEnemyBounds());
+		
 		for (GameObject o : model.getBullets()) {
 			drawBullet(o);
 		}
 
-		gc = gameCanvas.getGraphicsContext2D();
-		gc.setFill( Color.BLACK );
-		gc.fillRect(0, model.getGameHeight()-65, model.getGameWidth(), 65);
-		gc.setFill( Color.GREY );
-		gc.fillRect(0, model.getGameHeight()-65, model.getGameWidth(), 1);
+		paintDash(gc);
 		
 		lives.setText(model.getLives()+"");
 		score.setText(model.getScore()+"");

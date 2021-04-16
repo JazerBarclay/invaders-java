@@ -39,6 +39,9 @@ public class GameController {
 					if (model.getState() == GameState.RUNNING) model.pause();
 					else model.resume();
 					break;
+				case P:
+					model.toggleDevmode();
+					break;
 				default:
 					break;
 				}

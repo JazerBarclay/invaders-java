@@ -15,6 +15,7 @@ public class GameModel {
 
 	// Game data
 	private GameState state;
+	private boolean devmode;
 	private int gameWidth, gameHeight;
 	private int lives, score, tick, rate, playerCooldown, enemyCooldown;
 
@@ -23,7 +24,8 @@ public class GameModel {
 
 	// Enemy data
 	private Enemy[][] enemies;
-	private Bounds enemyBounds;
+	private GameObject enemyBounds;
+	private int lBound = 0, rBound = 9;
 
 	// Bullet data
 	private ArrayList<GameObject> bullets;
@@ -34,6 +36,7 @@ public class GameModel {
 		this.gameWidth = screenWidth;
 		this.gameHeight = screenHeight;
 		this.state = GameState.RUNNING;
+		this.devmode = false;
 
 		// Init game stats
 		lives = 3;
@@ -43,13 +46,16 @@ public class GameModel {
 		playerCooldown = 0;
 		enemyCooldown = 0;
 
-		// Init player
+		// Initialise player
 		generatePlayer();
 
-		// Init enemies
+		// Initialise enemies
 		generateEnemies();
 
-		// Init bullet array
+		// Initialise enemy bounds
+		generateEnemyBounds();
+
+		// Initialise bullets array
 		this.bullets = new ArrayList<GameObject>();
 
 	}
@@ -103,6 +109,19 @@ public class GameModel {
 		setState(GameState.STOPPED);
 	}
 
+	public boolean isDevmode() {
+		return devmode;
+	}
+	
+	public void setDevmode(boolean devmode) {
+		this.devmode = devmode;
+	}
+	
+	public boolean toggleDevmode() {
+		devmode ^= true;
+		return devmode;
+	}
+	
 	/**
 	 * @return the current player score
 	 */
@@ -138,6 +157,10 @@ public class GameModel {
 	 */
 	public Enemy[][] getEnemies() {
 		return enemies;
+	}
+	
+	public GameObject getEnemyBounds() {
+		return enemyBounds;
 	}
 
 	/**
@@ -188,11 +211,23 @@ public class GameModel {
 				if (i > 1 && i <= 3) e = new Enemy(EnemyType.LOADER, 20);
 				if (i == 4) e = new Enemy(EnemyType.SQUID, 10);
 				e.setPosition(new Vector(e.getWidth()*j+j*30, e.getHeight()*i+i*20+10));
-				e.setBaseSpeed(0);
+				e.setBaseSpeed(25);
 				e.setMotion(new Vector(e.getBaseSpeed(),0));
 				enemies[i][j] = e;
 			}
 		}
+	}
+	
+	private void generateEnemyBounds() {
+		lBound = 0; rBound = 9;
+		
+		enemyBounds = new GameObject(
+				enemies[0][0].getPosition(),
+				enemies[0][0].getMotion(),
+				(int) (enemies[0][enemies[0].length-1].getX()+enemies[0][enemies[0].length-1].getWidth()), 
+				(int) (enemies[enemies.length-1][0].getY()+enemies[enemies.length-1][0].getHeight()), 
+				enemies[0][0].getBaseSpeed()
+			);
 	}
 
 	/**
@@ -263,6 +298,8 @@ public class GameModel {
 					rate -= 4;
 					// add the enemy value to the score
 					score += e.getValue();
+					// Check bounds on enemies
+					checkBounds();
 
 				}
 			}
@@ -272,7 +309,74 @@ public class GameModel {
 		for (GameObject o : delBullet) bullets.remove(o);
 
 	}
+	
+	private void updatePlayerPosition() {
+		if (player.getX()+player.getMotion().getX() < 0) player.getMotion().setX(player.getMotion().getX() - player.getX());
+		else if (player.getX()+player.getWidth()+player.getMotion().getX() > gameWidth) player.getMotion().setX(gameWidth-player.getX()+player.getWidth());
+		else player.updatePosition();
+	}
 
+	private void updateEnemyPosition() {
+		if (getTick() == 0 || tick == rate/2) {
+			boolean invert = false;
+			if (enemyBounds.getX()+enemyBounds.getMotion().getX()+enemyBounds.getWidth() > gameWidth || 
+					enemyBounds.getX() + enemyBounds.getMotion().getX() < 0) 
+				invert = true;
+			for (Enemy[] enemies : getEnemies()) {
+				for (Enemy enemy : enemies) {
+					if (invert) {
+						enemy.setMotion(new Vector(-enemy.getMotion().getX(),0));
+						enemy.setPosition(new Vector(enemy.getX(), enemy.getY()+enemy.getHeight()/2));
+					}
+					enemy.updatePosition();
+				}
+			}
+			if (invert) {
+				enemyBounds.setMotion(new Vector(-enemyBounds.getMotion().getX(),0));
+				enemyBounds.setPosition(new Vector(enemyBounds.getX(), enemyBounds.getY()+enemies[0][0].getHeight()/2d));
+
+			}
+			enemyBounds.updatePosition();
+		}
+	}
+	
+	private void checkBounds() {
+		boolean anyAliveLeft = false, anyAliveRight = false;
+		
+		double widthDelta;
+		
+		for (int i = 0; i < enemies.length; i++) {
+			if (enemies[i][lBound].isAlive()) anyAliveLeft = true;
+			if (enemies[i][rBound].isAlive()) anyAliveRight = true;
+		}
+		
+		if (anyAliveLeft && anyAliveRight) return;
+		
+		if (!anyAliveLeft && !anyAliveRight && (lBound == rBound)) {
+			generateEnemies();
+			generateEnemyBounds();
+			rate = MAX_RATE;
+			enemyCooldown = ENEMY_CD_DURATION*2;
+			return;
+		}
+		
+		if (!anyAliveLeft) {
+			lBound+=1;
+			widthDelta = enemies[0][lBound].getX() - enemyBounds.getX();
+			enemyBounds.setPosition(new Vector(enemies[0][lBound].getX(), enemyBounds.getY()));
+			enemyBounds.setWidth((int) (enemyBounds.getWidth()-widthDelta));
+		}
+		
+		if (!anyAliveRight) {
+			rBound-=1;
+			widthDelta = (enemyBounds.getX()+enemyBounds.getWidth()) - (enemies[0][rBound].getX() + enemies[0][rBound].getWidth());
+			enemyBounds.setWidth((int) (enemyBounds.getWidth()-widthDelta));
+		}
+		
+		if (anyAliveLeft || anyAliveRight) checkBounds();
+		
+	}
+	
 	/**
 	 * Starts the game with this model using the given view and controller
 	 * @param view
@@ -312,14 +416,8 @@ public class GameModel {
 	 */
 	public void update() {
 		detectBulletCollision();
-		if (tick == 0 || tick == rate/2) {
-			for (Enemy[] enemies : this.enemies) {
-				for (Enemy e : enemies) {
-					e.updatePosition();
-				}
-			}
-		}
-		player.updatePosition();
+		updatePlayerPosition();
+		updateEnemyPosition();
 		for (GameObject o : getBullets()) {
 			o.updatePosition();
 		}
