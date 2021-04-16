@@ -1,4 +1,4 @@
-package dev.jazer.project.invaders;
+package dev.jazer.project.invaders.game;
 
 public enum GameState {
 	

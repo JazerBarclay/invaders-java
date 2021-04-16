@@ -1,4 +1,4 @@
-package dev.jazer.project.invaders;
+package dev.jazer.project.invaders.objects;
 
 public enum EnemyType {
 	BUNNY,

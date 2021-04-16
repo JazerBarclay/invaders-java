@@ -1,4 +1,4 @@
-package dev.jazer.project.invaders;
+package dev.jazer.project.invaders.objects;
 
 /**
  * A simple euclidean vector that handles x and y axis double precision values

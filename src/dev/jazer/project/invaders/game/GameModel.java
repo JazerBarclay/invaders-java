@@ -1,7 +1,14 @@
-package dev.jazer.project.invaders;
+package dev.jazer.project.invaders.game;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import dev.jazer.project.invaders.objects.Enemy;
+import dev.jazer.project.invaders.objects.EnemyType;
+import dev.jazer.project.invaders.objects.Entity;
+import dev.jazer.project.invaders.objects.GameObject;
+import dev.jazer.project.invaders.objects.Player;
+import dev.jazer.project.invaders.objects.Vector;
 import javafx.application.Platform;
 
 /**
@@ -29,13 +36,16 @@ public class GameModel {
 
 	// Bullet data
 	private ArrayList<GameObject> bullets;
+	
+	private ScoreReturnPromise scoreReturn;
 
 
-	public GameModel(int screenWidth, int screenHeight) {
+	public GameModel(int screenWidth, int screenHeight, ScoreReturnPromise scoreReturn) {
 		this.gameWidth = screenWidth;
 		this.gameHeight = screenHeight;
 		this.state = GameState.RUNNING;
 		this.devmode = false;
+		this.scoreReturn= scoreReturn;
 
 		lives = 3;
 		score = 0;
@@ -446,7 +456,7 @@ public class GameModel {
 				Thread.sleep( 10 );
 			}
 			// When the game stops, show end of game stats
-			
+			if (scoreReturn != null) scoreReturn.onReturn(score);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

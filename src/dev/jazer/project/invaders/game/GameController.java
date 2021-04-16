@@ -1,5 +1,6 @@
-package dev.jazer.project.invaders;
+package dev.jazer.project.invaders.game;
 
+import dev.jazer.project.invaders.objects.Vector;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 

@@ -1,5 +1,9 @@
-package dev.jazer.project.invaders;
+package dev.jazer.project.invaders.game;
 
+import dev.jazer.project.invaders.objects.Enemy;
+import dev.jazer.project.invaders.objects.GameObject;
+import dev.jazer.project.invaders.objects.Player;
+import dev.jazer.project.invaders.objects.Vector;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;

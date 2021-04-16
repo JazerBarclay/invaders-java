@@ -1,9 +1,11 @@
 package dev.jazer.project.invaders;
 
+import dev.jazer.project.invaders.game.ScoreReturnPromise;
+import dev.jazer.project.invaders.screen.InvadersScreen;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class Main extends Application {
+public class Main extends Application implements ScoreReturnPromise {
 
 	public static void main(String[] args) {
 		launch(args);
@@ -12,15 +14,14 @@ public class Main extends Application {
 	@Override
 	public void start(Stage window) throws Exception {
 		
-		GameModel model = new GameModel(1200, 900);
-		GameView view = new GameView(window, model);
-		GameController controller = new GameController(model);
+		InvadersScreen i = new InvadersScreen(window);
+		i.play();
+		
+	}
 
-		view.setController(controller);
-		view.show();
-		
-		model.startGame(view, controller);
-		
+	@Override
+	public void onReturn(int value) {
+		System.out.println("Score = " + value);
 	}
 
 }
