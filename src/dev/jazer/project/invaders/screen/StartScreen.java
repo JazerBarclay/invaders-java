@@ -18,6 +18,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * The first screen which holds the play and exit buttons
+ * @author Jazer Barclay
+ */
 public class StartScreen {
 	
 	private Pane pane;
@@ -28,6 +32,12 @@ public class StartScreen {
 	private Stage window;
 	private Scene scene;
 	
+	/**
+	 * Create first screen which holds the play and exit buttons with a given width and height
+	 * @param window - The Stage given by JavaFX
+	 * @param width - The window width
+	 * @param height - The window height
+	 */
 	public StartScreen(Stage window, int width, int height) {
 		
 		this.window = window;

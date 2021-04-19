@@ -9,16 +9,38 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 
+/**
+ * Entry point of the Invaders game where the JavaFX is set up
+ * @author Jazer Barclay
+ */
 public class Main extends Application {
 	
+	/**
+	 * The starting screen at the beginning of the game
+	 */
 	private StartScreen startScreen;
+	
+	/**
+	 * The main game screen where the game runs
+	 */
 	private InvadersScreen invadersScreen;
+	
+	/**
+	 * The game over screen that displays the final score
+	 */
 	private GameOverScreen gameOverScreen;
 	
+	/**
+	 * Entry point
+	 * @param args - Command line arguments
+	 */
 	public static void main(String[] args) {
 		launch(args);
 	}
 
+	/**
+	 * Entry point of JavaFX
+	 */
 	@Override
 	public void start(Stage window) throws Exception {
 		startScreen = new StartScreen(window, 1200, 900);
@@ -39,6 +61,7 @@ public class Main extends Application {
 		gameOverScreen = new GameOverScreen(window, 1200, 900);
 		
 		startScreen.show();
+		window.setResizable(false);
 		window.show();
 		
 	}
