@@ -18,7 +18,7 @@ import javafx.application.Platform;
 public class GameModel {
 
 	// Static data
-	private final int MAX_RATE = 205, PLAYER_CD_DURATION = 100, ENEMY_CD_DURATION = 100;
+	private final int MAX_LIVES = 3, MAX_RATE = 205, PLAYER_CD_DURATION = 100, ENEMY_CD_DURATION = 80;
 
 	// Game data
 	private GameState state;
@@ -47,7 +47,7 @@ public class GameModel {
 		this.devmode = false;
 		this.scoreReturn= scoreReturn;
 
-		lives = 3;
+		lives = MAX_LIVES;
 		score = 0;
 		tick = 0;
 		rate = MAX_RATE;
@@ -257,6 +257,7 @@ public class GameModel {
 	 */
 	public void playerFire() {
 		generateBullet(player);
+		GameView.playWAV("bullet");
 	}
 
 	/**
@@ -270,6 +271,7 @@ public class GameModel {
 		Random rand = new Random();
 		int y = enemies.length-1;
 		int x = rand.nextInt(enemies[0].length-1);
+		
 		boolean hasFired = false;
 		while (!hasFired) {
 			if (enemies[y][x].isAlive()) {
@@ -285,6 +287,8 @@ public class GameModel {
 				
 			}
 		}
+		GameView.playWAV("laser");
+		
 	}
 
 	/**
@@ -366,27 +370,27 @@ public class GameModel {
 	 * Advances the enemy position, inverts its movements and dropping down when an edge is met
 	 */
 	private void updateEnemyPosition() {
-		if (getTick() == 0 || tick == rate/2) {
-			boolean invert = false;
-			if (enemyBounds.getX()+enemyBounds.getMotion().getX()+enemyBounds.getWidth() > gameWidth || 
-					enemyBounds.getX() + enemyBounds.getMotion().getX() < 0) 
-				invert = true;
-			for (Enemy[] enemies : getEnemies()) {
-				for (Enemy enemy : enemies) {
-					if (invert) {
-						enemy.setMotion(new Vector(-enemy.getMotion().getX(),0));
-						enemy.setPosition(new Vector(enemy.getX(), enemy.getY()+enemy.getHeight()/2));
-					}
-					enemy.updatePosition();
+		if (!(getTick() == 0 || tick == rate/2)) return;
+		boolean invert = false;
+		if (enemyBounds.getX()+enemyBounds.getMotion().getX()+enemyBounds.getWidth() > gameWidth || 
+				enemyBounds.getX() + enemyBounds.getMotion().getX() < 0) 
+			invert = true;
+		for (Enemy[] enemies : getEnemies()) {
+			for (Enemy enemy : enemies) {
+				if (invert) {
+					enemy.setMotion(new Vector(-enemy.getMotion().getX(),0));
+					enemy.setPosition(new Vector(enemy.getX(), enemy.getY()+enemy.getHeight()/2));
 				}
+				enemy.updatePosition();
 			}
-			if (invert) {
-				enemyBounds.setMotion(new Vector(-enemyBounds.getMotion().getX(),0));
-				enemyBounds.setPosition(new Vector(enemyBounds.getX(), enemyBounds.getY()+enemies[0][0].getHeight()/2d));
-
-			}
-			enemyBounds.updatePosition();
 		}
+		if (invert) {
+			enemyBounds.setMotion(new Vector(-enemyBounds.getMotion().getX(),0));
+			enemyBounds.setPosition(new Vector(enemyBounds.getX(), enemyBounds.getY()+enemies[0][0].getHeight()/2d));
+
+		}
+		enemyBounds.updatePosition();
+		GameView.playMoveSound();
 	}
 	
 	/**
@@ -447,6 +451,7 @@ public class GameModel {
 	 */
 	private void runGame(GameView view, GameController controller) {
 		try {
+			GameView.playWAV("load");
 			while (state != GameState.STOPPED) {
 				if (state == GameState.RUNNING) {
 					if (controller != null) controller.update();
@@ -457,6 +462,7 @@ public class GameModel {
 			}
 			// When the game stops, show end of game stats
 			if (scoreReturn != null) scoreReturn.onReturn(score);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -470,11 +476,8 @@ public class GameModel {
 		detectBulletCollision();
 		updatePlayerPosition();
 		updateEnemyPosition();
-		
 		enemyFire();
-		
 		for (GameObject o : getBullets()) o.updatePosition();
-		
 		tick();
 	}
 

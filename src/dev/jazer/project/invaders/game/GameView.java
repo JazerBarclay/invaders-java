@@ -1,15 +1,16 @@
 package dev.jazer.project.invaders.game;
 
+import java.io.File;
+
 import dev.jazer.project.invaders.objects.Enemy;
 import dev.jazer.project.invaders.objects.GameObject;
-import dev.jazer.project.invaders.objects.Player;
-import dev.jazer.project.invaders.objects.Vector;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -20,7 +21,7 @@ public class GameView {
 	private GameModel model;
 	
 	private Stage window;
-	private Canvas gameCanvas;
+	private GameCanvas canvas;
 	private Pane layout;
 	private Scene screen;
 	
@@ -29,11 +30,11 @@ public class GameView {
 	public GameView(Stage window, GameModel model) {
 		this.window = window;
 		this.model = model;
-		this.gameCanvas = new Canvas(model.getGameWidth(), model.getGameHeight());
+		this.canvas = new GameCanvas(model.getGameWidth(), model.getGameHeight());
 		
 		layout = new Pane();
 		screen = new Scene(layout, 1200, 900);
-		layout.getChildren().add(gameCanvas);
+		layout.getChildren().add(canvas);
 		window.setScene(screen);
 		
 		// Create the score label which is displayed in the bottom right
@@ -54,23 +55,14 @@ public class GameView {
 		lives.setTextFill(Color.LIGHTGREY);
 		layout.getChildren().add(lives);
 		
-		clearGameCanvas();
-	}
-	
-	/**
-	 * Clears the canvas containing game sprites
-	 */
-	public void clearGameCanvas() {
-		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
-		gc.setFill(Color.BLACK);
-		gc.fillRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+		canvas.clear();
 	}
 	
 	/**
 	 * Make the stage (window) visible
 	 */
 	public void show() {
-		window.show();
+		Platform.runLater(() -> window.setScene(screen));
 	}
 
 	/**
@@ -82,37 +74,44 @@ public class GameView {
 		screen.setOnKeyReleased(controller.keyReleasedHandler());
 	}
 	
-	private void drawBox(GraphicsContext gc, GameObject obj) {
-		gc.setFill(Color.LIGHTGRAY);
-		gc.fillRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight());
+	/**
+	 * Plays a 'wav' audio file stored in the res folder
+	 * @param audioFile - Name of the file (omitting file extension)
+	 */
+	public static synchronized void playWAV(String audioFile) {
+		AudioClip clip = new AudioClip(new File("res/" + audioFile + ".wav").toURI().toString());
+		clip.play();
 	}
 	
-	private void drawGrid(Canvas canvas, Vector startPosition, String[][] grid, Color fillColour, int blockSize) {
-		GraphicsContext gc = canvas.getGraphicsContext2D();
-		double x = startPosition.getX();
-		double y = startPosition.getY();
-		gc.setFill(fillColour);
-		
-		for(int i = 0; i < grid.length; i++) {
-			for(int j = 0; j < grid[0].length; j++) {
-				if (grid[i][j].equals("x")) gc.fillRect(x+(j*blockSize), y+(i*blockSize), blockSize, blockSize);
-			}
-		}
+	/**
+	 * Plays enemy movement sound
+	 */
+	public static void playMoveSound() {
+		playWAV("move");
 	}
+
+	/**
+	 * Plays bullet fire sound
+	 */
+	public static void playBulletSound() {
+		playWAV("bullet");
+	}
+
 	
 	private void drawBullet(GameObject bullet) {
-		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
-		gc.setFill( Color.WHITE );
-		gc.fillRect( bullet.getX(), bullet.getY(), bullet.getWidth(), bullet.getHeight() );
+		canvas.drawBox(Color.GREY, bullet);
 	}
 	
-	private void drawPlayer(GraphicsContext gc, Player p) {
-		gc.setFill( Color.WHITE );
-		gc.fillRect( p.getX()+((p.getWidth()/5)*2), p.getY(), p.getWidth()/5, p.getHeight()/2 );
-		gc.fillRect( p.getX(), p.getY()+p.getHeight()/2, p.getWidth(), p.getHeight()/2 );	
+	private void drawPlayer() {
+		canvas.drawGrid(model.getPlayer().getPosition(), 
+			new String[][] {
+				{" "," ","x"," "," "},
+				{"x","x","x","x","x"}
+			}
+			, Color.WHITE, 10);
 	}
 	
-	private void drawSquid(GraphicsContext gc, Enemy e) {
+	private void drawSquid(Enemy e) {
 		int offset = 0;
 		String[][] grid = new String[][] {
 			{" "," ","x","x"," "," "},
@@ -131,13 +130,14 @@ public class GameView {
 			};
 			offset = 5;
 		}
-		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+		canvas.drawGrid(e.getPosition(), grid, Color.WHITE, 10);
+		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
 		gc.fillRect(e.getX()+15+offset, e.getY()+20, 5, 5);
 		gc.fillRect(e.getX()+35+offset, e.getY()+20, 5, 5);
 	}
 	
-	private void drawLoader(GraphicsContext gc, Enemy e) {
+	private void drawLoader(Enemy e) {
 		int offset = 0;
 		String[][] grid = new String[][] {
 			{"x","x"," "," "," "," "},
@@ -156,13 +156,14 @@ public class GameView {
 			};
 			offset = -5;
 		}
-		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+		canvas.drawGrid(e.getPosition(), grid, Color.WHITE, 10);
+		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
 		gc.fillRect(e.getX()+20+offset, e.getY()+35, 5, 5);
 		gc.fillRect(e.getX()+40+offset, e.getY()+35, 5, 5);
 	}
 	
-	private void drawBunny(GraphicsContext gc, Enemy e) {
+	private void drawBunny(Enemy e) {
 		int offset = 0;
 		String[][] grid = new String[][] {
 			{" ","x","x"," ","x","x"},
@@ -181,7 +182,8 @@ public class GameView {
 			};
 			offset = -5;
 		}
-		drawGrid(gameCanvas, e.getPosition(), grid, Color.WHITE, 10);
+		canvas.drawGrid(e.getPosition(), grid, Color.WHITE, 10);
+		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
 		gc.fillRect(e.getX()+20+offset, e.getY()+25, 5, 5);
 		gc.fillRect(e.getX()+40+offset, e.getY()+25, 5, 5);
@@ -192,15 +194,11 @@ public class GameView {
 	 * @param bounds - The bounds object
 	 */
 	private void paintBounds(GameObject bounds) {
-		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
-		gc.setFill( Color.RED );
-		gc.fillRect(bounds.getX(), bounds.getY(), bounds.getWidth(), 1);
-		gc.fillRect(bounds.getX(), bounds.getY()+bounds.getHeight(), bounds.getWidth(), 1);
-		gc.fillRect(bounds.getX(), bounds.getY(), 1, bounds.getHeight());
-		gc.fillRect(bounds.getX()+bounds.getWidth(), bounds.getY(), 1, bounds.getHeight());
+		canvas.drawOutline(Color.RED, bounds);
 	}
 	
-	private void paintDash(GraphicsContext gc) {
+	private void paintDash() {
+		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
 		gc.fillRect(0, model.getGameHeight()-65, model.getGameWidth(), 65);
 		gc.setFill( Color.GREY );
@@ -211,11 +209,10 @@ public class GameView {
 	 * Draws the model objects to the screen based on the game state
 	 */
 	public void render() {
-		clearGameCanvas();
-		GraphicsContext gc = gameCanvas.getGraphicsContext2D();
+		canvas.clear();
 		
 		// Draw player
-		drawPlayer(gc, model.getPlayer());
+		drawPlayer();
 		
 		// Draw enemies
 		for (Enemy[] enemies : model.getEnemies()) {
@@ -223,16 +220,16 @@ public class GameView {
 				if (!e.isAlive()) continue;
 				switch (e.getType()) {
 					case SQUID:
-						drawSquid(gc, e);
+						drawSquid(e);
 						break;
 					case LOADER:
-						drawLoader(gc, e);
+						drawLoader(e);
 						break;
 					case BUNNY:
-						drawBunny(gc, e);
+						drawBunny(e);
 						break;
 					default:
-						drawBox(gc, e);
+						canvas.drawBox(Color.RED, e);
 				}
 			}
 		}
@@ -244,7 +241,7 @@ public class GameView {
 			drawBullet(o);
 		}
 
-		paintDash(gc);
+		paintDash();
 		
 		lives.setText("Lives: " + model.getLives());
 		score.setText("Score: " + model.getScore());
