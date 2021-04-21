@@ -15,19 +15,8 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 	
-	/**
-	 * The starting screen at the beginning of the game
-	 */
 	private StartScreen startScreen;
-	
-	/**
-	 * The main game screen where the game runs
-	 */
 	private InvadersScreen invadersScreen;
-	
-	/**
-	 * The game over screen that displays the final score
-	 */
 	private GameOverScreen gameOverScreen;
 	
 	/**
@@ -43,14 +32,21 @@ public class Main extends Application {
 	 */
 	@Override
 	public void start(Stage window) throws Exception {
+
+		Logger.info(this, "--- Starting Initialisation ---");
+		
+
+		Logger.info(this, "Initialising start screen");
 		startScreen = new StartScreen(window, 1200, 900);
 		startScreen.setOnPlayHandler(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				Logger.info(Main.this, "Play button pressed");
 				invadersScreen.play();
 			}
 		});
-		
+
+		Logger.info(this, "Initialising game screen");
 		invadersScreen = new InvadersScreen(window, new ScoreReturnPromise() {
 			@Override
 			public void onReturn(int value) {
@@ -58,11 +54,25 @@ public class Main extends Application {
 			}
 		});
 		
+		Logger.info(this, "Initialising game over screen");
 		gameOverScreen = new GameOverScreen(window, 1200, 900);
+		gameOverScreen.setOnRetryHandler(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				invadersScreen.reset();
+				invadersScreen.play();
+			}
+		});
 		
+		Logger.info(this, "Setting window to start screen");
 		startScreen.show();
+		
 		window.setResizable(false);
+		
+		Logger.info(this, "Displaying window");
 		window.show();
+		
+		Logger.info(this, "--- Finished Initialisation ---");
 		
 	}
 

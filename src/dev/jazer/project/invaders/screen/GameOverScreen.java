@@ -4,9 +4,12 @@ import dev.jazer.project.invaders.game.GameCanvas;
 import dev.jazer.project.invaders.game.GameView;
 import dev.jazer.project.invaders.objects.Vector;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -23,6 +26,7 @@ public class GameOverScreen {
 	private Pane pane;
 	private GameCanvas c;
 	private Label lblTitle, lblScore;
+	private Button btnRetry;
 	
 	public GameOverScreen(Stage window, int width, int height) {
 		this.window = window;
@@ -52,7 +56,7 @@ public class GameOverScreen {
 
 		lblTitle.setPrefWidth(width);
 //		lblTitle.setLayoutX(model.getWindowWidth()/2-400/2);
-		lblTitle.setLayoutY(420);
+		lblTitle.setLayoutY(430);
 		lblTitle.setFont(new Font("Arial", 72));
 		lblTitle.setTextFill(Color.WHITE);
 		pane.getChildren().add(lblTitle);
@@ -60,9 +64,17 @@ public class GameOverScreen {
 		lblScore = new Label("");
 		lblScore.setAlignment(Pos.CENTER);
 		lblScore.setPrefWidth(width);
-		lblScore.setLayoutY(520);
+		lblScore.setLayoutY(510);
 		lblScore.setFont(new Font("Arial", 72));
 		lblScore.setTextFill(Color.WHITE);
+		
+		btnRetry = new Button("PLAY AGAIN?");
+		btnRetry.setFont(new Font("Arial", 28));
+		btnRetry.setPrefWidth(400);
+		btnRetry.setPrefHeight(100);
+		btnRetry.setLayoutX(width/2-400/2);
+		btnRetry.setLayoutY(650);
+		pane.getChildren().add(btnRetry);
 		
 		pane.getChildren().add(lblScore);
 		
@@ -74,6 +86,10 @@ public class GameOverScreen {
 		GameView.playWAV("lose");
 		lblScore.setText(""+score);
 		Platform.runLater(() -> window.setScene(scene));
+	}
+	
+	public void setOnRetryHandler(EventHandler<ActionEvent> eventHandler) {
+		btnRetry.setOnAction(eventHandler);
 	}
 	
 }

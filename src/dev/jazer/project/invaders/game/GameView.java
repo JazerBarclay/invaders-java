@@ -2,6 +2,7 @@ package dev.jazer.project.invaders.game;
 
 import java.io.File;
 
+import dev.jazer.project.invaders.Logger;
 import dev.jazer.project.invaders.objects.Enemy;
 import dev.jazer.project.invaders.objects.GameObject;
 import javafx.application.Platform;
@@ -26,6 +27,8 @@ public class GameView {
 	private Scene screen;
 	
 	private Label score, lives;
+	
+	private Label developerStats;
 	
 	public GameView(Stage window, GameModel model) {
 		this.window = window;
@@ -55,6 +58,17 @@ public class GameView {
 		lives.setTextFill(Color.LIGHTGREY);
 		layout.getChildren().add(lives);
 		
+		// Create the score label which is displayed in the bottom right
+		developerStats = new Label("Dev Stats");
+		developerStats.setPrefWidth(model.getGameWidth()-20);
+		developerStats.setTranslateY(60);
+		developerStats.setFont(new Font("Arial", 24));
+		developerStats.setTextFill(Color.RED);
+		developerStats.setTextAlignment(TextAlignment.RIGHT);
+		developerStats.setAlignment(Pos.CENTER_RIGHT);
+		layout.getChildren().add(developerStats);
+		developerStats.setVisible(model.isDevmode());
+		
 		canvas.clear();
 	}
 	
@@ -79,8 +93,12 @@ public class GameView {
 	 * @param audioFile - Name of the file (omitting file extension)
 	 */
 	public static synchronized void playWAV(String audioFile) {
-		AudioClip clip = new AudioClip(new File("res/" + audioFile + ".wav").toURI().toString());
-		clip.play();
+		try {
+			AudioClip clip = new AudioClip(new File("res/" + audioFile + ".wav").toURI().toString());
+			clip.play();
+		} catch (Exception e) {
+			Logger.error(GameView.class, "Failed to play audio clip '" + audioFile + "'", e);
+		}
 	}
 	
 	/**
@@ -235,7 +253,17 @@ public class GameView {
 		}
 		
 		// If developer mode is set to true, draw the enemy bounds
-		if (model.isDevmode()) paintBounds(model.getEnemyBounds());
+		if (model.isDevmode()) {
+			paintBounds(model.getEnemyBounds());
+			developerStats.setText("Dev Stats\n========\n"
+					+ "Total Bullets: " + model.getBullets().length + "\n"
+					+ "Player Cooldown: " + model.getPlayerCooldown() + "\n"
+					+ "Current Tick: " + model.getTick() + "\n"
+					+ "Maximum Tick: " + model.getRate() + "\n");
+			developerStats.setVisible(true);
+		} else {
+			developerStats.setVisible(false);
+		}
 		
 		for (GameObject o : model.getBullets()) {
 			drawBullet(o);

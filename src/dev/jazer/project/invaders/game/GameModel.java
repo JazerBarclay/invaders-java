@@ -3,6 +3,7 @@ package dev.jazer.project.invaders.game;
 import java.util.ArrayList;
 import java.util.Random;
 
+import dev.jazer.project.invaders.Logger;
 import dev.jazer.project.invaders.objects.Enemy;
 import dev.jazer.project.invaders.objects.EnemyType;
 import dev.jazer.project.invaders.objects.Entity;
@@ -43,24 +44,23 @@ public class GameModel {
 	public GameModel(int screenWidth, int screenHeight, ScoreReturnPromise scoreReturn) {
 		this.gameWidth = screenWidth;
 		this.gameHeight = screenHeight;
-		this.state = GameState.RUNNING;
-		this.devmode = false;
 		this.scoreReturn= scoreReturn;
-
+		
+		state = GameState.RUNNING;
+		devmode = false;
 		lives = MAX_LIVES;
 		score = 0;
 		tick = 0;
 		rate = MAX_RATE;
-		playerCooldown = 0;
-		enemyCooldown = 0;
-
+		playerCooldown = 1;
+		enemyCooldown = 1;
+		
 		generatePlayer();
 		generateEnemies();
 		generateEnemyBounds();
-		this.bullets = new ArrayList<GameObject>();
-
+		bullets = new ArrayList<GameObject>();
 	}
-
+	
 	/**
 	 * @return the game screen width
 	 */
@@ -93,6 +93,7 @@ public class GameModel {
 	 * Sets the game state to PAUSED
 	 */
 	public void pause() {
+		Logger.info(this, "Game Paused");
 		setState(GameState.PAUSED);
 	}
 
@@ -100,6 +101,7 @@ public class GameModel {
 	 * Sets the current game state to RUNNING
 	 */
 	public void resume() {
+		Logger.info(this, "Game Resumed");
 		setState(GameState.RUNNING);
 	}
 
@@ -107,6 +109,7 @@ public class GameModel {
 	 * Sets the current game state to STOPPED
 	 */
 	public void stop() {
+		Logger.info(this, "Game Stopped");
 		setState(GameState.STOPPED);
 	}
 
@@ -123,6 +126,7 @@ public class GameModel {
 	 * @param devmode true/false
 	 */
 	public void setDevmode(boolean devmode) {
+		Logger.info(this, "Dev mode set to " + devmode);
 		this.devmode = devmode;
 	}
 	
@@ -132,6 +136,7 @@ public class GameModel {
 	 */
 	public boolean toggleDevmode() {
 		devmode ^= true;
+		Logger.info(this, "Dev mode set to " + devmode);
 		return devmode;
 	}
 	
@@ -199,6 +204,11 @@ public class GameModel {
 		return rate;
 	}
 	
+	public void setRate(int rate) {
+		if (rate < 10) rate = 10;
+		this.rate = rate;
+	}
+	
 	/**
 	 * Advances the current game tick and updates cooldowns
 	 */
@@ -214,6 +224,7 @@ public class GameModel {
 	 */
 	private void generatePlayer() {
 		this.player = new Player(0,gameHeight-new Player(0,0).getHeight()-70);
+		Logger.info(this, "Player set at position " + player.getX() + ", d" + player.getY());
 	}
 
 	/**
@@ -228,13 +239,14 @@ public class GameModel {
 				Enemy e = null;
 				if (i <= 1) e = new Enemy(EnemyType.BUNNY, 30);
 				if (i > 1 && i <= 3) e = new Enemy(EnemyType.LOADER, 20);
-				if (i == 4) e = new Enemy(EnemyType.SQUID, 10);
+				if (i >= 4) e = new Enemy(EnemyType.SQUID, 10);
 				e.setPosition(new Vector(e.getWidth()*j+j*30, e.getHeight()*i+i*20+10));
 				e.setBaseSpeed(25);
 				e.setMotion(new Vector(e.getBaseSpeed(),0));
 				enemies[i][j] = e;
 			}
 		}
+		Logger.info(this, "Enemies created");
 	}
 	
 	/**
@@ -250,6 +262,8 @@ public class GameModel {
 				(int) (enemies[enemies.length-1][0].getY()+enemies[enemies.length-1][0].getHeight()), 
 				enemies[0][0].getBaseSpeed()
 			);
+
+		Logger.info(this, "Enemies bounding box created");
 	}
 
 	/**
@@ -258,6 +272,7 @@ public class GameModel {
 	public void playerFire() {
 		generateBullet(player);
 		GameView.playWAV("bullet");
+		Logger.info(this, "Player fired!");
 	}
 
 	/**
@@ -276,6 +291,7 @@ public class GameModel {
 		while (!hasFired) {
 			if (enemies[y][x].isAlive()) {
 				generateBullet(enemies[y][x]);
+				Logger.info(this, "Enemy ("+ x + "," + y +") fired!");
 				hasFired = true;
 			} else {
 				y--;
@@ -288,7 +304,6 @@ public class GameModel {
 			}
 		}
 		GameView.playWAV("laser");
-		
 	}
 
 	/**
@@ -334,6 +349,8 @@ public class GameModel {
 					e.setHealth(0);
 					rate -= 4;
 					score += e.getValue();
+					Logger.info(this, "Enemy Hit! Scored " + e.getValue() + " points!");
+					Logger.info(this, "Increasing rate by 4");
 					checkBounds();
 				}
 			}
@@ -342,7 +359,9 @@ public class GameModel {
 		for (GameObject bullet : bullets) {
 			if (bullet.isColliding(player)) {
 				lives--;
+				Logger.info(this, "Player hit! Health reduced to " + lives);
 				score+=player.getValue();
+				Logger.info(this, "Score reduced by " + player.getValue() + " points to " + score);
 				generatePlayer();
 				if (lives == 0) state = GameState.STOPPED;
 				delBullet.add(bullet);
@@ -409,6 +428,8 @@ public class GameModel {
 		if (anyAliveLeft && anyAliveRight) return;
 		
 		if (!anyAliveLeft && !anyAliveRight && (lBound == rBound)) {
+			Logger.warn(this, "--- All enemies destroyed! ---");
+			Logger.info(this, "Resetting enemies for next wave");
 			generateEnemies();
 			generateEnemyBounds();
 			rate = MAX_RATE;
@@ -418,6 +439,7 @@ public class GameModel {
 		
 		if (!anyAliveLeft) {
 			lBound+=1;
+			Logger.info(this, "Reducing bounds left by 1");
 			widthDelta = enemies[0][lBound].getX() - enemyBounds.getX();
 			enemyBounds.setPosition(new Vector(enemies[0][lBound].getX(), enemyBounds.getY()));
 			enemyBounds.setWidth((int) (enemyBounds.getWidth()-widthDelta));
@@ -425,6 +447,7 @@ public class GameModel {
 		
 		if (!anyAliveRight) {
 			rBound-=1;
+			Logger.info(this, "Reducing bounds right by 1");
 			widthDelta = (enemyBounds.getX()+enemyBounds.getWidth()) - (enemies[0][rBound].getX() + enemies[0][rBound].getWidth());
 			enemyBounds.setWidth((int) (enemyBounds.getWidth()-widthDelta));
 		}
@@ -439,6 +462,7 @@ public class GameModel {
 	 * @param controller
 	 */
 	public void startGame(GameView view, GameController controller) {
+		Logger.info(this, "Creating new game thread");
 		Thread t = new Thread(() -> runGame(view, controller));
 		t.setDaemon(true);
 		t.start();
@@ -451,6 +475,7 @@ public class GameModel {
 	 */
 	private void runGame(GameView view, GameController controller) {
 		try {
+			Logger.info(GameModel.this, "--- Game Loop Started ---");
 			GameView.playWAV("load");
 			while (state != GameState.STOPPED) {
 				if (state == GameState.RUNNING) {
@@ -461,6 +486,7 @@ public class GameModel {
 				Thread.sleep( 10 );
 			}
 			// When the game stops, show end of game stats
+			Logger.info(GameModel.this, "--- Game Loop Ended ---");
 			if (scoreReturn != null) scoreReturn.onReturn(score);
 			
 		} catch (Exception e) {
