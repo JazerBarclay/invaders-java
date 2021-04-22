@@ -29,16 +29,34 @@ public class Logger {
 		}
 	}
 	
+	/**
+	 * Synchronously prints an information message to the console
+	 * @param parent - Object calling this method
+	 * @param message - Message to be printed
+	 */
 	public static synchronized void info(Object parent, String message) {
 		print("INFO", parent, message, null);
 	}
+
 	
+	/**
+	 * Synchronously prints a warning message to the console
+	 * @param parent - Object calling this method
+	 * @param message - Message to be printed
+	 */
 	public static synchronized void warn(Object parent, String message) {
 		print("WARN", parent, message, null);
 	}
+
 	
-	public static synchronized void error(Object parent, String message, Exception e) {
-		print("ERROR", parent, message, e);
+	/**
+	 * Synchronously prints an error with exception to the console
+	 * @param parent - Object calling this method
+	 * @param message - Message to be printed
+	 * @param exeption - Exception
+	 */
+	public static synchronized void error(Object parent, String message, Exception exeption) {
+		print("ERROR", parent, message, exeption);
 	}
 	
 }
