@@ -2,6 +2,7 @@ package dev.jazer.project.invaders.test;
 
 import static org.junit.Assert.*;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dev.jazer.project.invaders.objects.GameObject;
@@ -42,6 +43,5 @@ public class GameObjectTest {
 		// Ensure the objects will collide based on the motion vector set
 		if (!obj1.willCollide(obj2)) fail("Objects should be colliding");
 	}
-	
-	
+
 }
