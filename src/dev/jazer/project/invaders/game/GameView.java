@@ -18,7 +18,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 /**
- * 
+ * This class manages displaying the GameModel data to the screen using JavaFX's Stage window
  * @author Jazer Barclay
  *
  */
@@ -35,6 +35,11 @@ public class GameView {
 	
 	private Label developerStats;
 	
+	/**
+	 * Create a new view
+	 * @param window - JavaFX Stage window
+	 * @param model - The GameModel to display
+	 */
 	public GameView(Stage window, GameModel model) {
 		this.window = window;
 		this.model = model;
@@ -120,11 +125,17 @@ public class GameView {
 		playWAV("bullet");
 	}
 
-	
+	/**
+	 * Draw a bullet to the canvas
+	 * @param bullet
+	 */
 	private void drawBullet(GameObject bullet) {
 		canvas.drawBox(Color.GREY, bullet);
 	}
 	
+	/**
+	 * Draws the player sprite
+	 */
 	private void drawPlayer() {
 		canvas.drawGrid(model.getPlayer().getPosition(), 
 			new String[][] {
@@ -134,7 +145,11 @@ public class GameView {
 			, Color.WHITE, 10);
 	}
 	
-	private void drawSquid(Enemy e) {
+	/**
+	 * Draws the squid enemy object
+	 * @param enemy
+	 */
+	private void drawSquid(Enemy enemy) {
 		int offset = 0;
 		String[][] grid = new String[][] {
 			{" "," ","x","x"," "," "},
@@ -153,14 +168,18 @@ public class GameView {
 			};
 			offset = 5;
 		}
-		canvas.drawGrid(e.getPosition(), grid, Color.WHITE, 10);
+		canvas.drawGrid(enemy.getPosition(), grid, Color.WHITE, 10);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
-		gc.fillRect(e.getX()+15+offset, e.getY()+20, 5, 5);
-		gc.fillRect(e.getX()+35+offset, e.getY()+20, 5, 5);
+		gc.fillRect(enemy.getX()+15+offset, enemy.getY()+20, 5, 5);
+		gc.fillRect(enemy.getX()+35+offset, enemy.getY()+20, 5, 5);
 	}
 	
-	private void drawLoader(Enemy e) {
+	/**
+	 * Draw the loader enemy object
+	 * @param enemy
+	 */
+	private void drawLoader(Enemy enemy) {
 		int offset = 0;
 		String[][] grid = new String[][] {
 			{"x","x"," "," "," "," "},
@@ -179,14 +198,18 @@ public class GameView {
 			};
 			offset = -5;
 		}
-		canvas.drawGrid(e.getPosition(), grid, Color.WHITE, 10);
+		canvas.drawGrid(enemy.getPosition(), grid, Color.WHITE, 10);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
-		gc.fillRect(e.getX()+20+offset, e.getY()+35, 5, 5);
-		gc.fillRect(e.getX()+40+offset, e.getY()+35, 5, 5);
+		gc.fillRect(enemy.getX()+20+offset, enemy.getY()+35, 5, 5);
+		gc.fillRect(enemy.getX()+40+offset, enemy.getY()+35, 5, 5);
 	}
 	
-	private void drawBunny(Enemy e) {
+	/**
+	 * Draw the bunny enemy object
+	 * @param enemy
+	 */
+	private void drawBunny(Enemy enemy) {
 		int offset = 0;
 		String[][] grid = new String[][] {
 			{" ","x","x"," ","x","x"},
@@ -205,11 +228,11 @@ public class GameView {
 			};
 			offset = -5;
 		}
-		canvas.drawGrid(e.getPosition(), grid, Color.WHITE, 10);
+		canvas.drawGrid(enemy.getPosition(), grid, Color.WHITE, 10);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
-		gc.fillRect(e.getX()+20+offset, e.getY()+25, 5, 5);
-		gc.fillRect(e.getX()+40+offset, e.getY()+25, 5, 5);
+		gc.fillRect(enemy.getX()+20+offset, enemy.getY()+25, 5, 5);
+		gc.fillRect(enemy.getX()+40+offset, enemy.getY()+25, 5, 5);
 	}
 	
 	/**
@@ -220,6 +243,9 @@ public class GameView {
 		canvas.drawOutline(Color.RED, bounds);
 	}
 	
+	/**
+	 * Draw the dash board at the bottom of the screen for the lives and score backdrop
+	 */
 	private void paintDash() {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill( Color.BLACK );
@@ -229,7 +255,7 @@ public class GameView {
 	}
 	
 	/**
-	 * Draws the model objects to the screen based on the game state
+	 * Draws the model objects to the screen based on the GameModel data
 	 */
 	public void render() {
 		canvas.clear();
@@ -278,7 +304,6 @@ public class GameView {
 		
 		lives.setText("Lives: " + model.getLives());
 		score.setText("Score: " + model.getScore());
-		
 	}
 	
 }

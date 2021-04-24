@@ -235,7 +235,6 @@ public class GameModel {
 	/* ------------------- Player ------------------ */
 	
 	/**
-	 * 
 	 * @return the player game object
 	 */
 	public Player getPlayer() {
@@ -382,10 +381,16 @@ public class GameModel {
 		GameView.playMoveSound();
 	}
 	
+	/**
+	 * @return the enemy cooldown remaining
+	 */
 	public int getEnemyCooldown() {
 		return enemyCooldown;
 	}
 	
+	/**
+	 * @return the cooldown duration for the enemy
+	 */
 	public int getEnemyCooldownDuration() {
 		return ENEMY_CD_DURATION;
 	}

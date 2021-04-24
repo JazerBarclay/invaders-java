@@ -6,6 +6,10 @@ package dev.jazer.project.invaders.game;
  */
 public interface ScoreReturnPromise {
 
+	/**
+	 * Perform an action using the value returned
+	 * @param value
+	 */
 	public void onReturn(int value);
 	
 }
