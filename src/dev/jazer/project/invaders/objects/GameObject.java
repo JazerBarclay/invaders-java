@@ -108,6 +108,25 @@ public class GameObject {
 	 */
 	public boolean isColliding(GameObject obj) {
 		// Flags
+		boolean isIntersectingX = false,
+				isIntersectingY = false;
+
+		// Check if next position object will take will intersect x and/or y
+		if (getX() < obj.getX()+obj.getWidth() && getX()+getWidth() > obj.getX()) isIntersectingX = true;
+		if (getY() > obj.getY()+obj.getHeight() && getY()+getHeight() < obj.getY()) isIntersectingY = true;
+
+		// If x and y are intersecting, return true. If not then continue to return false
+		if (isIntersectingX && isIntersectingY) return true;
+		return false;
+	}
+	
+	/**
+	 * Checks if the object parsed will collide with this object once it has moved
+	 * @param obj - The other object
+	 * @return true if they collide otherwise false
+	 */
+	public boolean willCollide(GameObject obj) {
+		// Flags
 		boolean willIntersectX = false,
 				willIntersectY = false;
 

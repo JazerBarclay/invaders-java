@@ -8,6 +8,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  * Entry point of the Invaders game where the JavaFX is set up
@@ -32,10 +33,8 @@ public class Main extends Application {
 	 */
 	@Override
 	public void start(Stage window) throws Exception {
-
 		Logger.info(this, "--- Starting Initialisation ---");
 		
-
 		Logger.info(this, "Initialising start screen");
 		startScreen = new StartScreen(window, 1200, 900);
 		startScreen.setOnPlayHandler(new EventHandler<ActionEvent>() {
@@ -69,11 +68,14 @@ public class Main extends Application {
 		
 		window.setResizable(false);
 		
+		window.setOnCloseRequest((WindowEvent event) -> {
+			Logger.warn(Main.this, "Exiting Game! Closing window");
+		});
+		
 		Logger.info(this, "Displaying window");
 		window.show();
 		
 		Logger.info(this, "--- Finished Initialisation ---");
-		
 	}
 
 }

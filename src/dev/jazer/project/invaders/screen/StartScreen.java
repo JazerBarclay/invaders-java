@@ -1,5 +1,7 @@
 package dev.jazer.project.invaders.screen;
 
+import dev.jazer.project.invaders.Logger;
+import dev.jazer.project.invaders.Main;
 import dev.jazer.project.invaders.game.GameCanvas;
 import dev.jazer.project.invaders.objects.Vector;
 import javafx.application.Platform;
@@ -83,7 +85,7 @@ public class StartScreen {
 		pane.getChildren().add(btnExit);
 		
 		btnPlay.setOnAction((ActionEvent event) -> { new InvadersScreen(window).play(); });
-		btnExit.setOnAction((ActionEvent event) -> System.exit(0));
+		btnExit.setOnAction((ActionEvent event) -> {Logger.warn(StartScreen.this, "Exiting Game! Closing window");System.exit(0);});
 		
 		scene = new Scene(pane);
 

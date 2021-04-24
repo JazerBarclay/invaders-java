@@ -4,12 +4,22 @@ import dev.jazer.project.invaders.objects.Vector;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 
+/**
+ * Controller class for the invaders game. Manages modifications to the model based on inputs 
+ * received from the View class
+ * @author Jazer Barclay
+ *
+ */
 public class GameController {
 	
 	private GameModel model;
 	
 	private boolean leftPressed = false, rightPressed = false, spacePressed = false;
 	
+	/**
+	 * Creates a new controller with the given model it modifies
+	 * @param model
+	 */
 	public GameController(GameModel model) {
 		this.model = model;
 	}
@@ -99,13 +109,14 @@ public class GameController {
 		return spacePressed;
 	}
 	
+	/**
+	 * Updates the model based on the combination of keyboard keys pressed
+	 */
 	public void update() {
 		if (leftPressed && !rightPressed) model.getPlayer().setMotion(new Vector(-model.getPlayer().getBaseSpeed(), 0));
 		if (!leftPressed && rightPressed) model.getPlayer().setMotion(new Vector(model.getPlayer().getBaseSpeed(), 0));
 		if (!leftPressed && !rightPressed) model.getPlayer().setMotion(new Vector(0, 0));
-		if (spacePressed && model.getPlayerCooldown() <= 0) {
-			model.playerFire();
-		}
+		if (spacePressed) model.playerFire();
 	}
 	
 }

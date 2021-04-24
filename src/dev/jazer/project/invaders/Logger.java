@@ -12,20 +12,20 @@ public class Logger {
 	
 	/**
 	 * Prints to the console the current time, parent class, message and exception<br><br>
-	 * If an exception is defined, the output will be set in red with syserr
+	 * If an exception is defined, the output will be set in red with system.err
 	 * 
 	 * @param type
 	 * @param parent
 	 * @param message
-	 * @param e
+	 * @param exception
 	 */
-	private static void print(String type, Object parent, String message, Exception e) {
+	private static void print(String type, Object parent, String message, Exception exception) {
 		String text = new SimpleDateFormat("HH:mm:ss (SSS)").format(new Date()) + " : " + type + " : " + parent.getClass().getSimpleName() + " : " + message;
-		if (e == null) {
+		if (exception == null) {
 			System.out.println(text);
 		} else {
 			System.err.println(text);
-			e.printStackTrace();
+			exception.printStackTrace();
 		}
 	}
 	

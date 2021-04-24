@@ -7,6 +7,12 @@ package dev.jazer.project.invaders.objects;
  */
 public class Vector {
 	
+	/*
+	 * ===================================================================
+	 * ------------------------- CLASS VARIABLES -------------------------
+	 * ===================================================================
+	 */
+	
 	/**
 	 * Vector position on X axis
 	 */
@@ -15,8 +21,13 @@ public class Vector {
 	 * Vector position on Y axis
 	 */
 	private double y;
-
-	/* CONSTRUCTORS */
+	
+	
+	/*
+	 * ==================================================================
+	 * -------------------------- CONSTRUCTORS --------------------------
+	 * ==================================================================
+	 */
 	
 	/**
 	 * Create a new vector with x and y set
@@ -35,9 +46,13 @@ public class Vector {
 		setX(0);
 		setY(0);
 	}
-	
 
-	/* GETTERS AND SETTERS */
+
+	/*
+	 * ===================================================================
+	 * ----------------------- GETTERS AND SETTERS -----------------------
+	 * ===================================================================
+	 */
 	
 	/**
 	 * Set vector coordinates to given values
@@ -80,9 +95,7 @@ public class Vector {
 		return y;
 	}
 
-
-	/* CALCULATIONS */
-
+	
 	/**
 	 * Adds the given vector value to this vector and returns the new vector
 	 * @param v - Vector to be added to the current vector
@@ -91,9 +104,6 @@ public class Vector {
 	public Vector add(Vector v) {
 		return new Vector(x+v.x, y+v.y);
 	}
-	
-
-	/* GLOBAL (STATIC) METHODS */
 	
 	/**
 	 * Returns a new vector that is the sum of the two given vector values

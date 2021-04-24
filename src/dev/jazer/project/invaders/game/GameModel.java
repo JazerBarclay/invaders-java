@@ -17,7 +17,11 @@ import javafx.application.Platform;
  * @author Jazer Barclay
  */
 public class GameModel {
-
+	
+	/* =================================================================== *
+	 * ------------------------- CLASS VARIABLES ------------------------- *
+	 * =================================================================== */
+	
 	// Static data
 	private final int MAX_LIVES = 3, MAX_RATE = 205, PLAYER_CD_DURATION = 100, ENEMY_CD_DURATION = 80;
 
@@ -40,18 +44,30 @@ public class GameModel {
 	
 	private ScoreReturnPromise scoreReturn;
 
+	
+	/* ================================================================== *
+	 * -------------------------- CONSTRUCTORS -------------------------- *
+	 * ================================================================== */
 
+	/**
+	 * Creates a new game model with the given screen width and height for the canvas with a
+	 * promise to return the score at the end of the game
+	 * 
+	 * @param screenWidth - Sets the game width
+	 * @param screenHeight - Sets the game height
+	 * @param scoreReturn - Allows score to be returned to parent
+	 */
 	public GameModel(int screenWidth, int screenHeight, ScoreReturnPromise scoreReturn) {
 		this.gameWidth = screenWidth;
 		this.gameHeight = screenHeight;
 		this.scoreReturn= scoreReturn;
 		
-		state = GameState.RUNNING;
-		devmode = false;
+		resume();
+		setDevmode(false);
 		lives = MAX_LIVES;
 		score = 0;
-		tick = 0;
-		rate = MAX_RATE;
+		resetTick();
+		resetRate();
 		playerCooldown = 1;
 		enemyCooldown = 1;
 		
@@ -61,20 +77,70 @@ public class GameModel {
 		bullets = new ArrayList<GameObject>();
 	}
 	
+	/* =================================================================== *
+	 * ------------------- GETTERS, SETTERS AND METHODS ------------------ *
+	 * =================================================================== */
+	
+	
+	/* ------------------- Game General ------------------ */
+	
 	/**
-	 * @return the game screen width
+	 * @return the max rate which the tick resets at
 	 */
-	public int getGameWidth() {
-		return gameWidth;
+	public int getRate() {
+		return rate;
+	}
+	
+	/**
+	 * Sets the game rate which is capped at a low of 10 and a high of the max rate
+	 * @param rate
+	 */
+	public void setRate(int rate) {
+		if (rate < 10) rate = 10;
+		if (rate > getMaxRate()) rate = getMaxRate();
+		this.rate = rate;
+	}
+	
+	/**
+	 * Resets the game rate to the maximum rate
+	 */
+	public void resetRate() {
+		rate = MAX_RATE;
+	}
+	
+	/**
+	 * @return the maximum rate
+	 */
+	public int getMaxRate() {
+		return MAX_RATE;
 	}
 
 	/**
-	 * @return the game screen height
+	 * @return true if is in devmode
 	 */
-	public int getGameHeight() {
-		return gameHeight;
+	public boolean isDevmode() {
+		return devmode;
 	}
-
+	
+	/**
+	 * Set if game is in dev mode
+	 * @param devmode true/false
+	 */
+	public void setDevmode(boolean devmode) {
+		Logger.info(this, "Dev mode set to " + devmode);
+		this.devmode = devmode;
+	}
+	
+	/**
+	 * Toggles devmode on or off
+	 * @return true if in devmode
+	 */
+	public boolean toggleDevmode() {
+		devmode ^= true;
+		Logger.info(this, "Dev mode set to " + devmode);
+		return devmode;
+	}
+	
 	/**
 	 * @return the current state of the game (RUNNING, PAUSED, STOPPED)
 	 */
@@ -112,32 +178,19 @@ public class GameModel {
 		Logger.info(this, "Game Stopped");
 		setState(GameState.STOPPED);
 	}
+	
+	/**
+	 * @return the game screen width
+	 */
+	public int getGameWidth() {
+		return gameWidth;
+	}
 
 	/**
-	 * 
-	 * @return true if is in devmode
+	 * @return the game screen height
 	 */
-	public boolean isDevmode() {
-		return devmode;
-	}
-	
-	/**
-	 * Set if game is in dev mode
-	 * @param devmode true/false
-	 */
-	public void setDevmode(boolean devmode) {
-		Logger.info(this, "Dev mode set to " + devmode);
-		this.devmode = devmode;
-	}
-	
-	/**
-	 * Toggles devmode on or off
-	 * @return true if in devmode
-	 */
-	public boolean toggleDevmode() {
-		devmode ^= true;
-		Logger.info(this, "Dev mode set to " + devmode);
-		return devmode;
+	public int getGameHeight() {
+		return gameHeight;
 	}
 	
 	/**
@@ -148,19 +201,39 @@ public class GameModel {
 	}
 
 	/**
-	 * @return the number of lives remaining
+	 * @return the current game tick
 	 */
-	public int getLives() {
-		return lives;
+	public int getTick() {
+		return tick;
 	}
-
+	
 	/**
-	 * @return the player's current cooldown timer
+	 * Sets the in game tick. If the tick reaches the rate, the tick is reset to 0
+	 * @param tick
 	 */
-	public int getPlayerCooldown() {
-		return playerCooldown;
+	public void setTick(int tick) {
+		if (tick > rate) resetTick();
+		else this.tick = tick;
+	}
+	
+	/**
+	 * Advances the current game tick and updates cooldowns
+	 */
+	public void tick() {
+		setTick(tick+1);
+		if (playerCooldown > 0) playerCooldown--;
+		if (enemyCooldown > 0) enemyCooldown--;
+	}
+	
+	/**
+	 * Sets the tick to 0
+	 */
+	public void resetTick() {
+		tick = 0;
 	}
 
+	/* ------------------- Player ------------------ */
+	
 	/**
 	 * 
 	 * @return the player game object
@@ -170,61 +243,91 @@ public class GameModel {
 	}
 
 	/**
-	 * @return the 2d array of enemies
-	 */
-	public Enemy[][] getEnemies() {
-		return enemies;
-	}
-	
-	/**
-	 * @return the enemy bounding box game object
-	 */
-	public GameObject getEnemyBounds() {
-		return enemyBounds;
-	}
-
-	/**
-	 * @return the array of bullets
-	 */
-	public GameObject[] getBullets() {
-		return bullets.toArray(new GameObject[bullets.size()]);
-	}
-
-	/**
-	 * @return the current game tick
-	 */
-	public int getTick() {
-		return tick;
-	}
-
-	/**
-	 * @return the max rate which the tick resets at
-	 */
-	public int getRate() {
-		return rate;
-	}
-	
-	public void setRate(int rate) {
-		if (rate < 10) rate = 10;
-		this.rate = rate;
-	}
-	
-	/**
-	 * Advances the current game tick and updates cooldowns
-	 */
-	public void tick() {
-		tick++;
-		if (playerCooldown > 0) playerCooldown--;
-		if (enemyCooldown > 0) enemyCooldown--;
-		if (tick > rate) tick = 0;
-	}
-
-	/**
 	 * Creates the player object at its starting position
 	 */
 	private void generatePlayer() {
 		this.player = new Player(0,gameHeight-new Player(0,0).getHeight()-70);
 		Logger.info(this, "Player set at position " + player.getX() + ", d" + player.getY());
+	}
+	
+	/**
+	 * Updates the player position checking to ensure it is within the game screen 
+	 */
+	private void updatePlayerPosition() {
+		if (player.getX()+player.getMotion().getX() < 0) player.getMotion().setX(player.getMotion().getX() - player.getX());
+		else if (player.getX()+player.getWidth()+player.getMotion().getX() > gameWidth) player.getMotion().setX(gameWidth-player.getX()+player.getWidth());
+		else player.updatePosition();
+	}
+
+	/**
+	 * @return the number of lives remaining
+	 */
+	public int getLives() {
+		return lives;
+	}
+	
+	/**
+	 * Sets the number of player lives remaining. Lives capped at a low of 0 and a high of max lives
+	 * @param lives
+	 */
+	public void setLives(int lives) {
+		if (lives < 0) lives = 0; 
+		if (lives > getMaxLives()) lives = getMaxLives(); 
+		this.lives = lives;
+	}
+	
+	/**
+	 * Resets the player lives to the max number of lives
+	 */
+	public void resetLives() {
+		setLives(getMaxLives());
+	}
+	
+	/**
+	 * @return the maximum number of lives
+	 */
+	public int getMaxLives() {
+		return MAX_LIVES;
+	}
+
+	/**
+	 * @return the player's fire cooldown duration 
+	 */
+	public int getPlayerCooldownDuration() {
+		return PLAYER_CD_DURATION;
+	}
+	
+	/**
+	 * @return the player's current cooldown timer
+	 */
+	public int getPlayerCooldown() {
+		return playerCooldown;
+	}
+	
+	/**
+	 * Sets the player's cooldown. If cooldown is set below 0, the player's cooldown is reset
+	 * @param cooldown
+	 */
+	public void setPlayerCooldown(int cooldown) {
+		if (cooldown < 0) resetPlayerCooldown(); 
+		else playerCooldown = cooldown;
+	}
+	
+	/**
+	 * Resets the player's cooldown to the player's cooldown duration
+	 */
+	public void resetPlayerCooldown() {
+		setPlayerCooldown(getPlayerCooldownDuration());
+	}
+
+
+	/* ------------------- Enemies ------------------ */
+	
+	/**
+	 * @return the 2d array of enemies
+	 */
+	public Enemy[][] getEnemies() {
+		return enemies;
 	}
 
 	/**
@@ -246,7 +349,55 @@ public class GameModel {
 				enemies[i][j] = e;
 			}
 		}
+		
 		Logger.info(this, "Enemies created");
+	}
+	
+	/**
+	 * Advances the enemy position, inverts its movements and dropping down when an edge is met
+	 */
+	private void updateEnemyPosition() {
+		if (!(getTick() == 0 || tick == rate/2)) return;
+		boolean invert = false;
+		if (enemyBounds.getX()+enemyBounds.getMotion().getX()+enemyBounds.getWidth() > gameWidth || 
+				enemyBounds.getX() + enemyBounds.getMotion().getX() < 0) 
+			invert = true;
+		for (Enemy[] enemies : getEnemies()) {
+			for (Enemy enemy : enemies) {
+				if (invert) {
+					enemy.setMotion(new Vector(-enemy.getMotion().getX(),0));
+					enemy.setPosition(new Vector(enemy.getX(), enemy.getY()+enemy.getHeight()/2));
+				}
+				// If they touch the surface then game over regardless of lives left
+				if (enemy.getPosition().add(enemy.getMotion()).getY() > getGameHeight()-player.getHeight() && enemy.isAlive()) stop();
+				enemy.updatePosition();
+			}
+		}
+		if (invert) {
+			enemyBounds.setMotion(new Vector(-enemyBounds.getMotion().getX(),0));
+			enemyBounds.setPosition(new Vector(enemyBounds.getX(), enemyBounds.getY()+enemies[0][0].getHeight()/2d));
+
+		}
+		enemyBounds.updatePosition();
+		GameView.playMoveSound();
+	}
+	
+	public int getEnemyCooldown() {
+		return enemyCooldown;
+	}
+	
+	public int getEnemyCooldownDuration() {
+		return ENEMY_CD_DURATION;
+	}
+
+
+	/* ------------------- Enemy Bounds ------------------ */
+	
+	/**
+	 * @return the enemy bounding box game object
+	 */
+	public GameObject getEnemyBounds() {
+		return enemyBounds;
 	}
 	
 	/**
@@ -266,152 +417,6 @@ public class GameModel {
 		Logger.info(this, "Enemies bounding box created");
 	}
 
-	/**
-	 * Creates a bullet fired by the player (set to go up)
-	 */
-	public void playerFire() {
-		generateBullet(player);
-		GameView.playWAV("bullet");
-		Logger.info(this, "Player fired!");
-	}
-
-	/**
-	 * Fires a bullet by a random enemy when the enemy cooldown has reached 0
-	 */
-	public void enemyFire() {
-		if (enemyCooldown != 0) return;
-		
-		enemyCooldown = ENEMY_CD_DURATION;
-		
-		Random rand = new Random();
-		int y = enemies.length-1;
-		int x = rand.nextInt(enemies[0].length-1);
-		
-		boolean hasFired = false;
-		while (!hasFired) {
-			if (enemies[y][x].isAlive()) {
-				generateBullet(enemies[y][x]);
-				Logger.info(this, "Enemy ("+ x + "," + y +") fired!");
-				hasFired = true;
-			} else {
-				y--;
-				if (y < 0) {
-					y = enemies.length-1;
-					x++;
-				}
-				if (x > 9) x = 0;
-				
-			}
-		}
-		GameView.playWAV("laser");
-	}
-
-	/**
-	 * Generates a bullet and position and directional data based on the type of entity
-	 * that is parsed
-	 * @param entity
-	 */
-	private void generateBullet(Entity entity) {
-		if (entity instanceof Player) {
-			playerCooldown = PLAYER_CD_DURATION;
-			bullets.add(new GameObject(
-					new Vector(player.getX()+player.getWidth()/2-3, 
-							player.getY()-30), 
-					new Vector(0, -5), 
-					6, 20, 1));
-		} else {
-			bullets.add(new GameObject(
-					new Vector(entity.getX()+entity.getWidth()/2, 
-							entity.getY()+60), 
-					new Vector(0, 5), 
-					6, 20, 1));
-		}
-	}
-
-	/**
-	 * Checks for bullet collision with the player and enemies
-	 * and handles incrementing score based on enemy value, removing the colliding
-	 * bullet and increasing the game rate
-	 */
-	private void detectBulletCollision() {
-		if (bullets.size() <= 0) return;
-		ArrayList<GameObject> delBullet = new ArrayList<GameObject>();
-
-		// Loop through all enemies
-		for (Enemy[] enemies : this.enemies) {
-			for (Enemy e : enemies) {
-				// If the enemy is already dead, skip
-				if (!e.isAlive()) continue;
-				// For each bullet, check if colliding with the enemy
-				for (GameObject bullet : bullets) {
-					if (!bullet.isColliding(e)) continue;
-					delBullet.add(bullet);
-					e.setHealth(0);
-					rate -= 4;
-					score += e.getValue();
-					Logger.info(this, "Enemy Hit! Scored " + e.getValue() + " points!");
-					Logger.info(this, "Increasing rate by 4");
-					checkBounds();
-				}
-			}
-		}
-		
-		for (GameObject bullet : bullets) {
-			if (bullet.isColliding(player)) {
-				lives--;
-				Logger.info(this, "Player hit! Health reduced to " + lives);
-				score+=player.getValue();
-				Logger.info(this, "Score reduced by " + player.getValue() + " points to " + score);
-				generatePlayer();
-				if (lives == 0) state = GameState.STOPPED;
-				delBullet.add(bullet);
-			}
-			if (bullet.getX() < 0 || 
-				bullet.getX() > getGameWidth() || 
-				bullet.getY() < 0 || 
-				bullet.getY() > getGameHeight()
-			) delBullet.add(bullet);
-		}
-
-		for (GameObject o : delBullet) bullets.remove(o);
-	}
-	
-	/**
-	 * Updates the player position checking to ensure it is within the game screen 
-	 */
-	private void updatePlayerPosition() {
-		if (player.getX()+player.getMotion().getX() < 0) player.getMotion().setX(player.getMotion().getX() - player.getX());
-		else if (player.getX()+player.getWidth()+player.getMotion().getX() > gameWidth) player.getMotion().setX(gameWidth-player.getX()+player.getWidth());
-		else player.updatePosition();
-	}
-
-	/**
-	 * Advances the enemy position, inverts its movements and dropping down when an edge is met
-	 */
-	private void updateEnemyPosition() {
-		if (!(getTick() == 0 || tick == rate/2)) return;
-		boolean invert = false;
-		if (enemyBounds.getX()+enemyBounds.getMotion().getX()+enemyBounds.getWidth() > gameWidth || 
-				enemyBounds.getX() + enemyBounds.getMotion().getX() < 0) 
-			invert = true;
-		for (Enemy[] enemies : getEnemies()) {
-			for (Enemy enemy : enemies) {
-				if (invert) {
-					enemy.setMotion(new Vector(-enemy.getMotion().getX(),0));
-					enemy.setPosition(new Vector(enemy.getX(), enemy.getY()+enemy.getHeight()/2));
-				}
-				enemy.updatePosition();
-			}
-		}
-		if (invert) {
-			enemyBounds.setMotion(new Vector(-enemyBounds.getMotion().getX(),0));
-			enemyBounds.setPosition(new Vector(enemyBounds.getX(), enemyBounds.getY()+enemies[0][0].getHeight()/2d));
-
-		}
-		enemyBounds.updatePosition();
-		GameView.playMoveSound();
-	}
-	
 	/**
 	 * Reduces the size of the bounding box to fit the enemies left alive
 	 */
@@ -456,6 +461,133 @@ public class GameModel {
 		
 	}
 	
+
+	/* ------------------- Bullets ------------------ */
+
+	/**
+	 * @return the array of bullets
+	 */
+	public GameObject[] getBullets() {
+		return bullets.toArray(new GameObject[bullets.size()]);
+	}
+	
+	/**
+	 * Generates a bullet and position and directional data based on the type of entity
+	 * that is parsed
+	 * @param entity
+	 */
+	private void generateBullet(Entity entity) {
+		if (entity instanceof Player) {
+			resetPlayerCooldown();
+			bullets.add(new GameObject(
+					new Vector(player.getX()+player.getWidth()/2-3, 
+							player.getY()-30), 
+					new Vector(0, -5), 
+					6, 20, 1));
+
+			Logger.info(this, "Player fired!");
+		} else {
+			bullets.add(new GameObject(
+					new Vector(entity.getX()+entity.getWidth()/2, 
+							entity.getY()+60), 
+					new Vector(0, 5), 
+					6, 20, 1));
+		}
+	}
+
+	/**
+	 * Creates a bullet fired by the player (set to go up)
+	 */
+	public void playerFire() {
+		if (getPlayerCooldown() == 0) {
+			generateBullet(player);
+			GameView.playWAV("bullet");
+		}
+	}
+
+	/**
+	 * Fires a bullet by a random enemy when the enemy cooldown has reached 0
+	 */
+	public void enemyFire() {
+		if (enemyCooldown != 0) return;
+		
+		enemyCooldown = ENEMY_CD_DURATION;
+		
+		Random rand = new Random();
+		int y = enemies.length-1;
+		int x = rand.nextInt(enemies[0].length-1);
+		
+		boolean hasFired = false;
+		while (!hasFired) {
+			if (enemies[y][x].isAlive()) {
+				generateBullet(enemies[y][x]);
+				Logger.info(this, "Enemy ("+ x + "," + y +") fired!");
+				hasFired = true;
+			} else {
+				y--;
+				if (y < 0) {
+					y = enemies.length-1;
+					x++;
+				}
+				if (x > 9) x = 0;
+				
+			}
+		}
+		GameView.playWAV("laser");
+	}
+
+	/**
+	 * Checks for bullet collision with the player and enemies
+	 * and handles incrementing score based on enemy value, removing the colliding
+	 * bullet and increasing the game rate
+	 */
+	private void detectBulletCollision() {
+		if (bullets.size() <= 0) return;
+		ArrayList<GameObject> delBullet = new ArrayList<GameObject>();
+
+		// Loop through all enemies
+		for (Enemy[] enemies : this.enemies) {
+			for (Enemy e : enemies) {
+				// If the enemy is already dead, skip
+				if (!e.isAlive()) continue;
+				// For each bullet, check if colliding with the enemy
+				for (GameObject bullet : bullets) {
+					if (!bullet.willCollide(e)) continue;
+					delBullet.add(bullet);
+					e.setHealth(0);
+					rate -= 4;
+					score += e.getValue();
+					Logger.info(this, "Enemy Hit! Scored " + e.getValue() + " points!");
+					Logger.info(this, "Increasing rate by 4");
+					checkBounds();
+				}
+			}
+		}
+		
+		for (GameObject bullet : bullets) {
+			if (bullet.willCollide(player)) {
+				lives--;
+				Logger.info(this, "Player hit! Health reduced to " + lives);
+				score+=player.getValue();
+				Logger.info(this, "Score reduced by " + player.getValue() + " points to " + score);
+				generatePlayer();
+				if (lives == 0) state = GameState.STOPPED;
+				delBullet.add(bullet);
+			}
+			if (bullet.getX() < 0 || 
+				bullet.getX() > getGameWidth() || 
+				bullet.getY() < 0 || 
+				bullet.getY() > getGameHeight()
+			) delBullet.add(bullet);
+		}
+
+		for (GameObject o : delBullet) bullets.remove(o);
+	}
+	
+	
+
+	/* ------------------- Game Loop ------------------ */
+	
 	/**
 	 * Starts the game with this model using the given view and controller
 	 * @param view
@@ -481,16 +613,15 @@ public class GameModel {
 				if (state == GameState.RUNNING) {
 					if (controller != null) controller.update();
 					this.update();
-					Platform.runLater(() -> view.render());
+					if(view != null) Platform.runLater(() -> view.render());
 				}
 				Thread.sleep( 10 );
 			}
 			// When the game stops, show end of game stats
 			Logger.info(GameModel.this, "--- Game Loop Ended ---");
 			if (scoreReturn != null) scoreReturn.onReturn(score);
-			
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.error(GameModel.this, "runGame method failed", e);
 		}
 	}
 

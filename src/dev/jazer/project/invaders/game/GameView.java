@@ -17,6 +17,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
+/**
+ * 
+ * @author Jazer Barclay
+ *
+ */
 public class GameView {
 
 	private GameModel model;
