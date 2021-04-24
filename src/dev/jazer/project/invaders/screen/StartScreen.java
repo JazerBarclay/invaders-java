@@ -27,7 +27,6 @@ import javafx.stage.Stage;
 public class StartScreen {
 	
 	private Pane pane;
-	private Label lblTitle;
 	private Button btnPlay;
 	private Button btnExit;
 	
@@ -58,22 +57,12 @@ public class StartScreen {
 			{"x","x","x","x","x", "", "x"," "," "," ","x", "", " "," ","x"," "," ", "", "x"," "," "," ","x", "", "x","x","x","x"," ", "", "x","x","x","x","x", "", "x"," "," "," ","x", "", "x","x","x","x","x"},
 				}, Color.WHITE, 20);
 		
-		lblTitle = new Label("I N V A D E R S");
-		lblTitle.setAlignment(Pos.CENTER);
-
-		lblTitle.setPrefWidth(width);
-//		lblTitle.setLayoutX(model.getWindowWidth()/2-400/2);
-		lblTitle.setLayoutY(220);
-		lblTitle.setFont(new Font("Arial", 72));
-		lblTitle.setTextFill(Color.WHITE);
-//		pane.getChildren().add(lblTitle);
-		
 		btnPlay = new Button("PLAY");
 		btnPlay.setFont(new Font("Arial", 28));
 		btnPlay.setPrefWidth(400);
 		btnPlay.setPrefHeight(100);
 		btnPlay.setLayoutX(width/2-400/2);
-		btnPlay.setLayoutY(400);
+		btnPlay.setLayoutY(450);
 		pane.getChildren().add(btnPlay);
 
 		btnExit = new Button("EXIT");
@@ -81,7 +70,7 @@ public class StartScreen {
 		btnExit.setPrefWidth(400);
 		btnExit.setPrefHeight(100);
 		btnExit.setLayoutX(width/2-400/2);
-		btnExit.setLayoutY(550);
+		btnExit.setLayoutY(580);
 		pane.getChildren().add(btnExit);
 		
 		btnPlay.setOnAction((ActionEvent event) -> { new InvadersScreen(window).play(); });
