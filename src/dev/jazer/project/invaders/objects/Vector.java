@@ -43,8 +43,7 @@ public class Vector {
 	 * Create a new vector at (0, 0)
 	 */
 	public Vector() {
-		setX(0);
-		setY(0);
+		this(0, 0);
 	}
 
 
