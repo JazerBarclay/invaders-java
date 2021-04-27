@@ -123,7 +123,7 @@ public class GameView {
 	}
 
 	/**
-	 * Plays bullet fire sound
+	 * Plays laser fire sound
 	 */
 	public static void playLaserSound() {
 		playWAV("laser");
