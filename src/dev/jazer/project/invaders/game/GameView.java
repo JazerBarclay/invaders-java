@@ -103,12 +103,8 @@ public class GameView {
 	 * @param audioFile - Name of the file (omitting file extension)
 	 */
 	public static synchronized void playWAV(String audioFile) {
-		try {
-			AudioClip clip = new AudioClip(new File("res/" + audioFile + ".wav").toURI().toString());
-			clip.play();
-		} catch (Exception e) {
-			Logger.error(GameView.class, "Failed to play audio clip '" + audioFile + "'", e);
-		}
+		AudioClip clip = new AudioClip(new File("res/" + audioFile + ".wav").toURI().toString());
+		Platform.runLater(() -> { clip.play(); });
 	}
 	
 	/**
@@ -123,6 +119,14 @@ public class GameView {
 	 */
 	public static void playBulletSound() {
 		playWAV("bullet");
+		Logger.info(GameView.class, "PEW");
+	}
+
+	/**
+	 * Plays bullet fire sound
+	 */
+	public static void playLaserSound() {
+		playWAV("laser");
 	}
 
 	/**

@@ -426,6 +426,7 @@ public class GameModel {
 	 * Reduces the size of the bounding box to fit the enemies left alive
 	 */
 	private void checkBounds() {
+		Logger.info(this, "Checking Bounds...");
 		boolean anyAliveLeft = false, anyAliveRight = false;
 		
 		double widthDelta;
@@ -462,7 +463,7 @@ public class GameModel {
 			enemyBounds.setWidth((int) (enemyBounds.getWidth()-widthDelta));
 		}
 		
-		if (anyAliveLeft || anyAliveRight) checkBounds();
+		if (!anyAliveLeft || !anyAliveRight) checkBounds();
 		
 	}
 	
@@ -506,7 +507,7 @@ public class GameModel {
 	public void playerFire() {
 		if (getPlayerCooldown() == 0) {
 			generateBullet(player);
-			GameView.playWAV("bullet");
+			GameView.playBulletSound();
 		}
 	}
 
@@ -538,7 +539,7 @@ public class GameModel {
 				
 			}
 		}
-		GameView.playWAV("laser");
+		GameView.playLaserSound();
 	}
 
 	/**
