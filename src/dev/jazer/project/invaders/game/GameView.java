@@ -119,7 +119,6 @@ public class GameView {
 	 */
 	public static void playBulletSound() {
 		playWAV("bullet");
-		Logger.info(GameView.class, "PEW");
 	}
 
 	/**
