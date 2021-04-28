@@ -104,7 +104,7 @@ public class GameView {
 	 */
 	public static synchronized void playWAV(String audioFile) {
 		AudioClip clip = new AudioClip(new File("res/" + audioFile + ".wav").toURI().toString());
-		Platform.runLater(() -> { clip.play(); });
+		clip.play();
 	}
 	
 	/**
