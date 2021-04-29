@@ -2,7 +2,6 @@ package dev.jazer.project.invaders.test;
 
 import static org.junit.Assert.*;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dev.jazer.project.invaders.objects.GameObject;
